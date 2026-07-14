@@ -1,6 +1,6 @@
 <script setup>
 // The settings column: currency controls, theme, background, content position,
-// language switcher, device, title, the refresh button, and the shared status line.
+// device, title, the refresh button, and the shared status line.
 
 import { THEMES, DEVICE_SIZES } from '~/utils/wallpaper';
 
@@ -50,8 +50,6 @@ const status = computed(() => {
 
     <PositionToggle :state="state" />
 
-    <LanguageSwitcher />
-
     <div class="field-row">
       <div class="field">
         <label for="device">{{ $t('controls.device') }}</label>
@@ -67,7 +65,7 @@ const status = computed(() => {
       </div>
       <div class="field">
         <label for="title">{{ $t('controls.title') }}</label>
-        <input id="title" v-model="state.title" type="text" maxlength="32" />
+        <input id="title" v-model="state.title" type="text" maxlength="64" />
       </div>
     </div>
 

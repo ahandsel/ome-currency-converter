@@ -26,8 +26,11 @@ useSeoMeta({
 <template>
   <div>
     <header class="topbar">
-      <h1>💱 {{ $t('app.title') }}</h1>
-      <p class="tagline">{{ $t('app.tagline') }}</p>
+      <div class="topbar__copy">
+        <h1>💱 {{ $t('app.title') }}</h1>
+        <p class="tagline">{{ $t('app.tagline') }}</p>
+      </div>
+      <LanguageSwitcher />
     </header>
 
     <main class="layout">
