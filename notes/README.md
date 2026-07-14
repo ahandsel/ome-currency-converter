@@ -5,6 +5,7 @@ Dated research and reference notes for this repository. Each note captures a sna
 
 ## Contents
 
+* [2026-07-14-folder-structure-audit.md](2026-07-14-folder-structure-audit.md) - Folder structure audit and improvement proposal for ticket 1.
 * [2026-07-14-phase-0-status.md](2026-07-14-phase-0-status.md) - Phase 0 Nuxt migration checkpoint.
 * [2026-07-14-phase-1-status.md](2026-07-14-phase-1-status.md) - Phase 1 backgrounds and photo rendering checkpoint.
 * [background-curation-proposal.md](background-curation-proposal.md) - approved Unsplash set for Phase 1 (filename fixed by [docs/backgrounds.md](../docs/backgrounds.md)).
