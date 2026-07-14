@@ -93,15 +93,42 @@ function drawCoverImage(ctx, img, w, h) {
   ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
 }
 
-// Semi-opaque vertical scrim; darker through the content band for legibility.
-function drawScrim(ctx, w, h) {
-  const scrim = ctx.createLinearGradient(0, 0, 0, h);
-  scrim.addColorStop(0, 'rgba(0,0,0,0.25)');
-  scrim.addColorStop(0.3, 'rgba(0,0,0,0.40)');
-  scrim.addColorStop(0.55, 'rgba(0,0,0,0.55)');
-  scrim.addColorStop(0.85, 'rgba(0,0,0,0.50)');
-  scrim.addColorStop(1, 'rgba(0,0,0,0.35)');
-  ctx.fillStyle = scrim;
+// Left-position panel width as a fraction of canvas width (roughly 55 to 60%).
+const LEFT_PANEL_WIDTH_FRACTION = 0.58;
+
+function normalizePosition(position) {
+  return position === 'left' ? 'left' : 'center';
+}
+
+// Semi-opaque scrim for photo legibility. Center uses a vertical content-band
+// gradient; left adds a horizontal overlay weighted toward the content side.
+function drawScrim(ctx, w, h, position) {
+  const vertical = ctx.createLinearGradient(0, 0, 0, h);
+  if (position === 'left') {
+    vertical.addColorStop(0, 'rgba(0,0,0,0.20)');
+    vertical.addColorStop(0.3, 'rgba(0,0,0,0.35)');
+    vertical.addColorStop(0.55, 'rgba(0,0,0,0.50)');
+    vertical.addColorStop(0.85, 'rgba(0,0,0,0.40)');
+    vertical.addColorStop(1, 'rgba(0,0,0,0.28)');
+  } else {
+    vertical.addColorStop(0, 'rgba(0,0,0,0.25)');
+    vertical.addColorStop(0.3, 'rgba(0,0,0,0.40)');
+    vertical.addColorStop(0.55, 'rgba(0,0,0,0.55)');
+    vertical.addColorStop(0.85, 'rgba(0,0,0,0.50)');
+    vertical.addColorStop(1, 'rgba(0,0,0,0.35)');
+  }
+  ctx.fillStyle = vertical;
+  ctx.fillRect(0, 0, w, h);
+
+  if (position !== 'left') return;
+
+  const horizontal = ctx.createLinearGradient(0, 0, w, 0);
+  horizontal.addColorStop(0, 'rgba(0,0,0,0.45)');
+  horizontal.addColorStop(0.35, 'rgba(0,0,0,0.30)');
+  horizontal.addColorStop(LEFT_PANEL_WIDTH_FRACTION, 'rgba(0,0,0,0.12)');
+  horizontal.addColorStop(0.75, 'rgba(0,0,0,0.04)');
+  horizontal.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = horizontal;
   ctx.fillRect(0, 0, w, h);
 }
 
@@ -131,12 +158,12 @@ function drawGradientBackground(ctx, theme, w, h) {
   ctx.fillRect(0, 0, w, h);
 }
 
-function drawPhotoAttribution(ctx, photographer, w, h, s) {
-  ctx.textAlign = 'center';
+function drawPhotoAttribution(ctx, photographer, w, h, s, position, alignX) {
+  ctx.textAlign = position === 'left' ? 'left' : 'center';
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = 'rgba(255,255,255,0.45)';
   ctx.font = `400 ${22 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-  ctx.fillText(`Photo: ${photographer} / Unsplash`, w / 2, h - 28 * s);
+  ctx.fillText(`Photo: ${photographer} / Unsplash`, alignX, h - 28 * s);
 }
 
 function formatCompactThousands(value) {
@@ -278,6 +305,8 @@ export function renderWallpaper(canvas, data, size) {
   canvas.height = h;
   const ctx = canvas.getContext('2d');
   const s = w / 1290; // scale factor relative to the design reference width
+  const position = normalizePosition(data.position);
+  const margin = 96 * s;
   const theme = THEMES[data.theme] || THEMES.midnight;
   const hasPhoto = isUsableBackgroundImage(data.background);
 
@@ -287,13 +316,22 @@ export function renderWallpaper(canvas, data, size) {
       ctx.fillRect(0, 0, w, h);
     }
     drawCoverImage(ctx, data.background, w, h);
-    drawScrim(ctx, w, h);
+    drawScrim(ctx, w, h, position);
   } else {
     drawGradientBackground(ctx, theme, w, h);
   }
 
   if (hasPhoto && data.attribution?.photographer) {
-    drawPhotoAttribution(ctx, data.attribution.photographer, w, h, s);
+    const attributionX = position === 'left' ? margin : w / 2;
+    drawPhotoAttribution(
+      ctx,
+      data.attribution.photographer,
+      w,
+      h,
+      s,
+      position,
+      attributionX,
+    );
   }
 
   if (!isCompleteRenderData(data)) return;
@@ -320,13 +358,12 @@ export function renderWallpaper(canvas, data, size) {
     headerBg = theme.dark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.06)';
   }
 
-  const margin = 96 * s;
-
   // Content lives in the lower ~70% so the lock-screen clock/date (top ~26%)
-  // stays clear. Phase 3 adds left anchoring; for now always center the panel.
+  // stays clear.
   const contentTop = h * 0.3;
   const contentBottom = h * 0.93;
-  const panelW = w - margin * 2;
+  const panelW =
+    position === 'left' ? w * LEFT_PANEL_WIDTH_FRACTION : w - margin * 2;
   const panelX = margin;
   const footerReserve = 56 * s;
   const maxPanelH = contentBottom - contentTop - footerReserve;
@@ -350,13 +387,14 @@ export function renderWallpaper(canvas, data, size) {
     headerBg,
   });
 
-  ctx.textAlign = 'center';
+  ctx.textAlign = position === 'left' ? 'left' : 'center';
   ctx.fillStyle = muted;
   ctx.font = `500 ${26 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
   const when = data.date ? `Updated ${formatDate(data.date)}` : '';
+  const footerX = position === 'left' ? panelX : w / 2;
   ctx.fillText(
     `${when}  ·  rates: ECB / frankfurter.dev`,
-    w / 2,
+    footerX,
     contentTop + panelH + footerReserve,
   );
 }

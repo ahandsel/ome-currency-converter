@@ -21,6 +21,10 @@
     "background": "Background",
     "backgroundHint": "Pick a photo or keep a gradient theme.",
     "backgroundNone": "None (gradient)",
+    "position": "Position",
+    "positionHint": "Center the table, or move it left so app icons can sit on the right.",
+    "positionCenter": "Center",
+    "positionLeft": "Left",
     "device": "iPhone size",
     "title": "Title",
     "refresh": "Refresh rates"

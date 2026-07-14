@@ -22,12 +22,12 @@ Target Nuxt 4 (v4.4.x is the current stable at the time of writing; use the late
 * The `@nuxtjs/i18n` module (built on Vue I18n) gives the app an English and Japanese interface with browser-language detection and a persisted language choice.
 
 
-## Current architecture (after Phase 2)
+## Current architecture (after Phase 3)
 
-Phases 0 to 2 are complete. The app lives in the Nuxt layout below and paints a single home/travel increment-table wallpaper.
+Phases 0 to 3 are complete. The app lives in the Nuxt layout below and paints a single home/travel increment-table wallpaper with center or left positioning.
 
 * `app/pages/index.vue`: owns wallpaper state and rates; composes the control panel and preview.
-* `app/components/control-panel.vue`, `currency-controls.vue`, `background-picker.vue`, `wallpaper-preview.vue`: settings column, currency wall plus ladder inputs, photo picker, and client-only canvas preview with PNG download.
+* `app/components/control-panel.vue`, `currency-controls.vue`, `background-picker.vue`, `position-toggle.vue`, `wallpaper-preview.vue`: settings column, currency wall plus ladder inputs, photo picker, center/left position, and client-only canvas preview with PNG download.
 * `app/composables/use-wallpaper-state.js`: persistent settings under `STORAGE_KEY` (`ome-currency-converter:v1`), including `home`, `travel`, ladder fields, and `position`.
 * `app/composables/use-rates.js`: fetches from the Nitro rates route for the home currency, with a direct Frankfurter fallback on static hosts; skips fetch when home is unset.
 * `app/utils/wallpaper.js`: pure canvas renderer; paints photo or gradient backgrounds and the increment table.

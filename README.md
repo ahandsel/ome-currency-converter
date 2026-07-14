@@ -4,8 +4,8 @@ A web app that generates an iPhone wallpaper showing a home-to-travel currency e
 Rates come from the European Central Bank via the Frankfurter API.
 
 The app is built on [Nuxt](https://nuxt.com/) 4, the full-stack Vue framework.
-Phases 0 to 2 of [docs/technical-plan.md](docs/technical-plan.md) are complete: Nuxt migration, photo backgrounds, and the home/travel increment-table wallpaper.
-Phases 3 to 5 (positioning, Japanese localization, and polish) are still pending.
+Phases 0 to 3 of [docs/technical-plan.md](docs/technical-plan.md) are complete: Nuxt migration, photo backgrounds, the home/travel increment-table wallpaper, and content positioning.
+Phases 4 to 5 (Japanese localization and polish) are still pending.
 Multi-destination cards are out of scope.
 
 

@@ -14,7 +14,7 @@ These rules apply to all AI agents working in this repository. This is the canon
 
 Ome Currency Converting Wallpaper is a web app that generates an iPhone wallpaper containing a currency exchange reference. The wallpaper itself is the product; the controls exist only to configure it. A user picks exactly one home currency and one travel currency on a shared currency wall, configures an amount ladder (step and row count), chooses a background and an iPhone size, then downloads a PNG sized to their device. The wallpaper is a two-column increment table (left = home amounts, right = travel amounts). The interface supports English and Japanese.
 
-The app runs on [Nuxt](https://nuxt.com/) 4, the full-stack Vue framework. Phases 0 to 2 of [docs/technical-plan.md](docs/technical-plan.md) are complete: Nuxt migration, curated photo backgrounds, and the home/travel increment-table wallpaper with currency-wall selection. Phases 3 to 5 (positioning, Japanese localization, and polish) are still pending.
+The app runs on [Nuxt](https://nuxt.com/) 4, the full-stack Vue framework. Phases 0 to 3 of [docs/technical-plan.md](docs/technical-plan.md) are complete: Nuxt migration, curated photo backgrounds, the home/travel increment-table wallpaper, and center/left content positioning. Phases 4 to 5 (Japanese localization and polish) are still pending.
 
 Live rates come from the keyless, CORS-enabled Frankfurter API (European Central Bank reference rates). Backgrounds are curated Unsplash photos with gradient themes as the fallback. The wallpaper is painted on a `<canvas>` at full device resolution and exported to PNG.
 
