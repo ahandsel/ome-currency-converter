@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "attribution": {
+    "commit": ""
+  },
+  "includeGitInstructions": true,
+  "permissions": {
+    "allow": [
+      "Bash(corepack --version)",
+      "Bash(corepack enable:*)",
+      "Bash(corepack use:*)",
+      "Bash(echo:*)",
+      "Bash(gh api:*)",
+      "Bash(gh auth:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh repo view)",
+      "Bash(git add:*)",
+      "Bash(git branch)",
+      "Bash(git checkout:*)",
+      "Bash(git commit:*)",
+      "Bash(git diff:*)",
+      "Bash(git fetch:*)",
+      "Bash(git log:*)",
+      "Bash(git mv:*)",
+      "Bash(git pull:*)",
+      "Bash(git remote -v)",
+      "Bash(git restore:*)",
+      "Bash(git show:*)",
+      "Bash(git stash:*)",
+      "Bash(git status)",
+      "Bash(grep -v:*)",
+      "Bash(nodenv version:*)",
+      "Bash(nodenv versions:*)",
+      "Bash(pnpm --version)",
+      "Bash(pnpm config:*)",
+      "Bash(pnpm exec:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm prettier:*)",
+      "Bash(pnpm run:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm test-names:*)"
+    ],
+    "ask": [
+      "Bash(git push --force *)",
+      "Bash(git push --force-with-lease *)",
+      "Bash(git push -f *)",
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~)",
+      "Bash(rm -rf ~/*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm lint"
+          }
+        ]
+      }
+    ]
+  }
+}
