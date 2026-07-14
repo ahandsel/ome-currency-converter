@@ -3,11 +3,24 @@
 // Project Pages URL: https://ahandsel.github.io/ome-currency-converter/
 export default defineNuxtConfig({
   compatibilityDate: '2026-07-14',
-  modules: ['@nuxtjs/i18n', '@vueuse/nuxt'],
+  modules: ['@nuxt/icon', '@nuxtjs/i18n', '@vueuse/nuxt'],
   css: ['~/assets/css/main.css'],
   app: {
     // Project Pages serves under /<repo>/, not the user/org root.
     baseURL: '/ome-currency-converter/',
+  },
+  // Static GitHub Pages has no Nitro runtime, so icons must ship in the
+  // client bundle instead of relying on `/api/_nuxt_icon` or the Iconify API.
+  icon: {
+    provider: 'none',
+    clientBundle: {
+      scan: true,
+      icons: [
+        'material-symbols:home',
+        'material-symbols:language',
+        'material-symbols:rocket-launch',
+      ],
+    },
   },
   nitro: {
     // Extends the static preset; writes `.nojekyll` and prerenders `/404.html`.
