@@ -47,11 +47,23 @@ export function currencyMeta(code) {
   );
 }
 
+// Localized currency name via Intl.DisplayNames, with static metadata fallback.
+export function currencyDisplayName(code, locale = 'en-US') {
+  try {
+    const displayNames = new Intl.DisplayNames([locale], { type: 'currency' });
+    const name = displayNames.of(code);
+    if (name && !/^unknown currency$/i.test(name)) return name;
+  } catch {
+    /* DisplayNames unavailable or invalid locale */
+  }
+  return currencyMeta(code).name;
+}
+
 // Format an amount for a given currency code, honouring its decimal places
-// and adding thousands separators.
-export function formatAmount(amount, code) {
+// and adding thousands separators for the given locale.
+export function formatAmount(amount, code, locale = 'en-US') {
   const { decimals } = currencyMeta(code);
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat(locale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(amount);

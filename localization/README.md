@@ -6,11 +6,7 @@ Locale message files for the Ome Currency Converter web app. The app supports an
 ## Contents
 
 * [en.json](en.json) - English UI strings. English is the default locale and the source of truth for message keys.
-
-
-## Planned contents
-
-* `ja.json` - Japanese UI strings, translated from `en.json` following [docs/glossary.yaml](../docs/glossary.yaml) and the [Japanese general style guide](../docs/general-style-guide-japanese.md). Planned for Phase 4 of [docs/technical-plan.md](../docs/technical-plan.md).
+* [ja.json](ja.json) - Japanese UI strings, translated from `en.json` following [docs/glossary.yaml](../docs/glossary.yaml) and the [Japanese general style guide](../docs/general-style-guide-japanese.md).
 
 
 ## Notes

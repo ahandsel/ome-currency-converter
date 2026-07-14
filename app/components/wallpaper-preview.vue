@@ -5,7 +5,11 @@
 
 import { buildLadder } from '#shared/utils/ladder.js';
 import { loadBackgroundImage, getBackground } from '~/utils/backgrounds';
-import { renderWallpaper, DEVICE_SIZES } from '~/utils/wallpaper';
+import {
+  formatWallpaperDate,
+  renderWallpaper,
+  DEVICE_SIZES,
+} from '~/utils/wallpaper';
 
 const props = defineProps({
   state: { type: Object, required: true },
@@ -13,6 +17,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['download-error']);
+
+const { t, locale } = useI18n();
+const intlLocale = computed(() => (locale.value === 'ja' ? 'ja-JP' : 'en-US'));
 
 const canvasEl = ref(null);
 const loadedBackgroundImage = ref(null);
@@ -40,15 +47,36 @@ function backgroundRenderFields() {
   return fields;
 }
 
+function wallpaperLabels(date, photographer) {
+  return {
+    footerUpdated: date
+      ? t('wallpaper.updated', {
+          date: formatWallpaperDate(date, intlLocale.value),
+        })
+      : '',
+    footerRates: t('wallpaper.ratesCredit'),
+    photoCredit: photographer
+      ? `${t('preview.photoCredit', { name: photographer })} / Unsplash`
+      : null,
+  };
+}
+
 function draw() {
   const canvas = canvasEl.value;
   if (!canvas) return;
   const size = DEVICE_SIZES[props.state.device] || DEVICE_SIZES['pro-max'];
+  const bgFields = backgroundRenderFields();
+  const photographer = bgFields.attribution?.photographer ?? null;
+  const title = props.state.title?.trim()
+    ? props.state.title
+    : t('wallpaper.defaultTitle');
   const baseData = {
-    title: props.state.title,
+    title,
     theme: props.state.theme,
     position: props.state.position,
-    ...backgroundRenderFields(),
+    locale: intlLocale.value,
+    labels: wallpaperLabels(null, photographer),
+    ...bgFields,
   };
 
   if (!isPairComplete.value) {
@@ -63,6 +91,7 @@ function draw() {
     includeOne: props.state.includeOne,
   });
 
+  const date = props.rates.date;
   renderWallpaper(
     canvas,
     {
@@ -71,7 +100,8 @@ function draw() {
       travel,
       ladder,
       rate: props.rates.rates[travel],
-      date: props.rates.date,
+      date,
+      labels: wallpaperLabels(date, photographer),
     },
     size,
   );
@@ -96,9 +126,11 @@ async function loadBackgroundForId(id) {
   }
 }
 
-watch([() => props.state, () => props.rates, loadedBackgroundImage], draw, {
-  deep: true,
-});
+watch(
+  [() => props.state, () => props.rates, loadedBackgroundImage, locale],
+  draw,
+  { deep: true },
+);
 
 watch(
   () => props.state.backgroundId,

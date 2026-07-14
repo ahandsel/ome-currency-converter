@@ -59,16 +59,25 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-function formatDate(iso) {
-  // iso is "YYYY-MM-DD" from the API.
+const WALLPAPER_DATE_OPTIONS = {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+};
+
+// iso is "YYYY-MM-DD" from the API.
+export function formatWallpaperDate(iso, locale = 'en-US') {
   const [y, m, d] = iso.split('-').map(Number);
   const date = new Date(y, m - 1, d);
-  return date.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  return date.toLocaleDateString(locale, WALLPAPER_DATE_OPTIONS);
 }
+
+const DEFAULT_LABELS = {
+  footerUpdatedPrefix: 'Updated ',
+  footerRates: 'rates: ECB / frankfurter.dev',
+  photoCreditPrefix: 'Photo: ',
+  photoCreditSuffix: ' / Unsplash',
+};
 
 function isUsableBackgroundImage(img) {
   return img && img.naturalWidth > 0 && img.naturalHeight > 0;
@@ -158,29 +167,29 @@ function drawGradientBackground(ctx, theme, w, h) {
   ctx.fillRect(0, 0, w, h);
 }
 
-function drawPhotoAttribution(ctx, photographer, w, h, s, position, alignX) {
+function drawPhotoAttribution(ctx, photoCredit, w, h, s, position, alignX) {
   ctx.textAlign = position === 'left' ? 'left' : 'center';
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = 'rgba(255,255,255,0.45)';
   ctx.font = `400 ${22 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-  ctx.fillText(`Photo: ${photographer} / Unsplash`, alignX, h - 28 * s);
+  ctx.fillText(photoCredit, alignX, h - 28 * s);
 }
 
 function formatCompactThousands(value) {
   return `${(value / 1000).toFixed(1)}K`;
 }
 
-function formatHomeCell(amount, code) {
+function formatHomeCell(amount, code, locale) {
   const meta = currencyMeta(code);
   if (amount >= COMPACT_HOME_THRESHOLD) {
     return `${meta.symbol}${formatCompactThousands(amount)}`;
   }
-  return `${meta.symbol}${formatAmount(amount, code)}`;
+  return `${meta.symbol}${formatAmount(amount, code, locale)}`;
 }
 
-function formatTravelCell(amount, code) {
+function formatTravelCell(amount, code, locale) {
   const meta = currencyMeta(code);
-  return `${meta.symbol}${formatAmount(amount, code)}`;
+  return `${meta.symbol}${formatAmount(amount, code, locale)}`;
 }
 
 function renderIncrementTable(ctx, o) {
@@ -199,6 +208,7 @@ function renderIncrementTable(ctx, o) {
     panelLine,
     zebraBg,
     headerBg,
+    locale,
   } = o;
 
   const rowCount = ladder.length;
@@ -274,8 +284,12 @@ function renderIncrementTable(ctx, o) {
 
     ctx.fillStyle = fg;
     ctx.font = `600 ${amountSize}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-    ctx.fillText(formatHomeCell(homeAmount, home), x + w * 0.25, midY);
-    ctx.fillText(formatTravelCell(travelAmount, travel), x + w * 0.75, midY);
+    ctx.fillText(formatHomeCell(homeAmount, home, locale), x + w * 0.25, midY);
+    ctx.fillText(
+      formatTravelCell(travelAmount, travel, locale),
+      x + w * 0.75,
+      midY,
+    );
   }
 
   ctx.restore();
@@ -297,6 +311,12 @@ function renderIncrementTable(ctx, o) {
 //   suggestedText: "light" | "dark" | undefined,
 //   dominantColor: string | undefined,
 //   position: "center" | "left",
+//   locale: "en-US" | "ja-JP",
+//   labels: {
+//     footerUpdated: string | null,
+//     footerRates: string,
+//     photoCredit: string | null,
+//   },
 // }
 // size: { w, h }
 export function renderWallpaper(canvas, data, size) {
@@ -305,6 +325,8 @@ export function renderWallpaper(canvas, data, size) {
   canvas.height = h;
   const ctx = canvas.getContext('2d');
   const s = w / 1290; // scale factor relative to the design reference width
+  const locale = data.locale || 'en-US';
+  const labels = data.labels || {};
   const position = normalizePosition(data.position);
   const margin = 96 * s;
   const theme = THEMES[data.theme] || THEMES.midnight;
@@ -322,16 +344,12 @@ export function renderWallpaper(canvas, data, size) {
   }
 
   if (hasPhoto && data.attribution?.photographer) {
+    const photographer = data.attribution.photographer;
+    const photoCredit =
+      labels.photoCredit ??
+      `${DEFAULT_LABELS.photoCreditPrefix}${photographer}${DEFAULT_LABELS.photoCreditSuffix}`;
     const attributionX = position === 'left' ? margin : w / 2;
-    drawPhotoAttribution(
-      ctx,
-      data.attribution.photographer,
-      w,
-      h,
-      s,
-      position,
-      attributionX,
-    );
+    drawPhotoAttribution(ctx, photoCredit, w, h, s, position, attributionX);
   }
 
   if (!isCompleteRenderData(data)) return;
@@ -385,15 +403,20 @@ export function renderWallpaper(canvas, data, size) {
     panelLine,
     zebraBg,
     headerBg,
+    locale,
   });
 
   ctx.textAlign = position === 'left' ? 'left' : 'center';
   ctx.fillStyle = muted;
   ctx.font = `500 ${26 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-  const when = data.date ? `Updated ${formatDate(data.date)}` : '';
+  const when = data.date
+    ? (labels.footerUpdated ??
+      `${DEFAULT_LABELS.footerUpdatedPrefix}${formatWallpaperDate(data.date, locale)}`)
+    : (labels.footerUpdated ?? '');
+  const rates = labels.footerRates ?? DEFAULT_LABELS.footerRates;
   const footerX = position === 'left' ? panelX : w / 2;
   ctx.fillText(
-    `${when}  ·  rates: ECB / frankfurter.dev`,
+    `${when}  ·  ${rates}`,
     footerX,
     contentTop + panelH + footerReserve,
   );

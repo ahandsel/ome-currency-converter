@@ -2,14 +2,19 @@
 // Currency wall (home/travel chips) plus ladder step, row count, and include-one.
 // Mutates the shared wallpaper state object passed down from the page.
 
-import { CURRENCIES, currencyMeta } from '#shared/utils/currencies';
+import {
+  CURRENCIES,
+  currencyDisplayName,
+  currencyMeta,
+} from '#shared/utils/currencies';
 import { applyCurrencyTap } from '#shared/utils/currency-selection';
 
 const props = defineProps({
   state: { type: Object, required: true },
 });
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
+const intlLocale = computed(() => (locale.value === 'ja' ? 'ja-JP' : 'en-US'));
 
 // Render with the built-in list immediately, then refine from the API once
 // on the client. Falls back silently to the static list on failure.
@@ -34,9 +39,9 @@ function chipRole(code) {
 }
 
 function chipAriaLabel(code) {
-  const meta = currencyMeta(code);
+  const name = currencyDisplayName(code, intlLocale.value);
   const role = chipRole(code);
-  const base = `${code} ${meta.name}`;
+  const base = `${code} ${name}`;
   if (role === 'home') return `${base}, ${t('controls.homeMarker')}`;
   if (role === 'travel') return `${base}, ${t('controls.travelMarker')}`;
   return base;

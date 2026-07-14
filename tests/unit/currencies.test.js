@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   CURRENCIES,
+  currencyDisplayName,
   currencyMeta,
   formatAmount,
 } from '#shared/utils/currencies.js';
@@ -27,6 +28,28 @@ describe('formatAmount', () => {
 
   it('falls back to two fraction digits for an unknown code', () => {
     expect(formatAmount(5, 'XXX')).toBe('5.00');
+  });
+
+  it('formats amounts with a Japanese locale', () => {
+    expect(formatAmount(1234, 'JPY', 'ja-JP')).toBe('1,234');
+    expect(formatAmount(1234.5, 'USD', 'ja-JP')).toBe('1,234.50');
+    expect(formatAmount(9876543.21, 'USD', 'ja-JP')).toBe('9,876,543.21');
+  });
+});
+
+describe('currencyDisplayName', () => {
+  it('returns an English display name by default', () => {
+    expect(currencyDisplayName('USD')).toBe('US Dollar');
+    expect(currencyDisplayName('JPY')).toBe('Japanese Yen');
+  });
+
+  it('returns Japanese display names for ja-JP', () => {
+    expect(currencyDisplayName('USD', 'ja-JP')).toBe('米ドル');
+    expect(currencyDisplayName('JPY', 'ja-JP')).toBe('日本円');
+  });
+
+  it('falls back to static metadata for an unknown code', () => {
+    expect(currencyDisplayName('XXX')).toBe('XXX');
   });
 });
 

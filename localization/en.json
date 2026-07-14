@@ -27,7 +27,10 @@
     "positionLeft": "Left",
     "device": "iPhone size",
     "title": "Title",
-    "refresh": "Refresh rates"
+    "refresh": "Refresh rates",
+    "language": "Language",
+    "languageEn": "English",
+    "languageJa": "日本語"
   },
   "status": {
     "fetching": "Fetching latest rates…",
@@ -46,6 +49,8 @@
     "credit": "Rates from the European Central Bank via {link}. Updated on business days; not for trading."
   },
   "wallpaper": {
-    "defaultTitle": "Travel rates"
+    "defaultTitle": "Travel rates",
+    "updated": "Updated {date}",
+    "ratesCredit": "rates: ECB / frankfurter.dev"
   }
 }

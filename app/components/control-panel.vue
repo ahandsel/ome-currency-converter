@@ -1,6 +1,6 @@
 <script setup>
 // The settings column: currency controls, theme, background, content position,
-// device, title, the refresh button, and the shared status line.
+// language switcher, device, title, the refresh button, and the shared status line.
 
 import { THEMES, DEVICE_SIZES } from '~/utils/wallpaper';
 
@@ -49,6 +49,8 @@ const status = computed(() => {
     <BackgroundPicker :state="state" />
 
     <PositionToggle :state="state" />
+
+    <LanguageSwitcher />
 
     <div class="field-row">
       <div class="field">

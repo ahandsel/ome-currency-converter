@@ -1,0 +1,56 @@
+{
+  "app": {
+    "title": "Ome Currency Converter",
+    "tagline": "自国通貨と旅行先通貨の為替表を載せたiPhone用の壁紙を作成します。",
+    "metaTitle": "Ome Currency Converter - 旅行の壁紙",
+    "metaDescription": "旅行に使える、自国通貨から旅行先通貨への為替表を載せたiPhone用の壁紙を作成します。"
+  },
+  "controls": {
+    "ariaLabel": "壁紙の設定",
+    "currencies": "通貨",
+    "currenciesHint": "タップして自国通貨、次に旅行先通貨を設定します。もう一度タップすると解除します。通貨は2つまでです。",
+    "homeMarker": "自国",
+    "travelMarker": "旅行先",
+    "step": "刻み",
+    "stepHint": "増分表の各行で増やす自国通貨の金額。",
+    "rowCount": "行数",
+    "rowCountHint": "壁紙に表示する金額の行数（3〜10）。",
+    "includeOne": "1を含める",
+    "includeOneHint": "必要に応じて、1単位の自国通貨を最初の行に追加します。",
+    "theme": "テーマ",
+    "background": "背景",
+    "backgroundHint": "写真を選ぶか、グラデーションのテーマのままにします。",
+    "backgroundNone": "なし（グラデーション）",
+    "position": "位置",
+    "positionHint": "表を中央に配置するか、左に寄せて右側にアプリのアイコンを置けるようにします。",
+    "positionCenter": "中央",
+    "positionLeft": "左",
+    "device": "iPhoneのサイズ",
+    "title": "タイトル",
+    "refresh": "レートを更新",
+    "language": "言語",
+    "languageEn": "English",
+    "languageJa": "日本語"
+  },
+  "status": {
+    "fetching": "最新のレートを取得中…",
+    "updated": "{date}時点のレートです。",
+    "fetchError": "レートを取得できませんでした。接続を確認して「レートを更新」を試してください。",
+    "downloadError": "画像を生成できませんでした。",
+    "incompletePair": "壁紙をプレビューするには、自国通貨と旅行先通貨を選択してください。"
+  },
+  "preview": {
+    "ariaLabel": "壁紙のプレビュー",
+    "download": "壁紙をダウンロード",
+    "photoCredit": "写真：{name}",
+    "saveHint": "iPhoneでは、ダウンロードして「写真」で開き、壁紙に設定します。ヒント：ダウンロードした画像を長押しすると、そのまま保存できます。"
+  },
+  "footer": {
+    "credit": "為替レートは欧州中央銀行（ECB）のデータを{link}経由で取得しています。営業日に更新されます。取引目的には使用しないでください。"
+  },
+  "wallpaper": {
+    "defaultTitle": "旅行のレート",
+    "updated": "{date}に更新",
+    "ratesCredit": "レート：ECB / frankfurter.dev"
+  }
+}
