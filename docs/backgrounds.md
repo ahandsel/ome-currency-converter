@@ -52,7 +52,7 @@ The initial set targets about 12 calm, low-detail, phone-friendly photos so a cu
 | 11   | night-sky      | Stars and night sky   | light          |
 | 12   | paper-neutral  | Neutral paper texture | dark           |
 
-The slots above are placeholders describing the intended look. Each must be replaced with a concrete Unsplash photo (real `fullUrl`, `thumbUrl`, `photographer`, `profileUrl`, and `photoUrl`) during implementation.
+The slots above describe the intended look. Concrete Unsplash photos for all 12 slots are approved in [notes/background-curation-proposal.md](../notes/background-curation-proposal.md) and wired into `app/utils/backgrounds.js`.
 
 
 ## Curation workflow

@@ -3,6 +3,7 @@
 // change, and exports the canvas to a PNG download. Client-only; the page
 // wraps this component in <ClientOnly>.
 
+import { loadBackgroundImage, getBackground } from "~/utils/backgrounds";
 import { renderWallpaper, DEVICE_SIZES } from "~/utils/wallpaper";
 
 const props = defineProps({
@@ -13,6 +14,7 @@ const props = defineProps({
 const emit = defineEmits(["download-error"]);
 
 const canvasEl = ref(null);
+const loadedBackgroundImage = ref(null);
 
 // Keep only destinations the current base has a rate for, excluding the base.
 const activeDestinations = computed(() => {
@@ -21,6 +23,20 @@ const activeDestinations = computed(() => {
     .filter((code) => code !== props.state.base && props.rates.rates[code] != null)
     .map((code) => ({ code, rate: props.rates.rates[code] }));
 });
+
+function backgroundRenderFields() {
+  const id = props.state.backgroundId;
+  if (!id || !loadedBackgroundImage.value) return {};
+
+  const entry = getBackground(id);
+  const fields = { background: loadedBackgroundImage.value };
+  if (entry) {
+    fields.attribution = { photographer: entry.photographer };
+    fields.suggestedText = entry.suggestedText;
+    fields.dominantColor = entry.dominantColor;
+  }
+  return fields;
+}
 
 function draw() {
   const canvas = canvasEl.value;
@@ -36,12 +52,41 @@ function draw() {
       title: props.state.title,
       theme: props.state.theme,
       destinations: activeDestinations.value,
+      ...backgroundRenderFields(),
     },
     size,
   );
 }
 
-watch([() => props.state, () => props.rates], draw, { deep: true });
+async function loadBackgroundForId(id) {
+  if (!id) {
+    loadedBackgroundImage.value = null;
+    return;
+  }
+
+  const requestedId = id;
+  loadedBackgroundImage.value = null;
+
+  try {
+    const img = await loadBackgroundImage(requestedId);
+    if (props.state.backgroundId !== requestedId) return;
+    loadedBackgroundImage.value = img;
+  } catch {
+    if (props.state.backgroundId !== requestedId) return;
+    loadedBackgroundImage.value = null;
+  }
+}
+
+watch([() => props.state, () => props.rates, loadedBackgroundImage], draw, { deep: true });
+
+watch(
+  () => props.state.backgroundId,
+  (id) => {
+    loadBackgroundForId(id);
+  },
+  { immediate: true },
+);
+
 onMounted(draw);
 
 function downloadWallpaper() {

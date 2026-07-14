@@ -43,28 +43,35 @@ function formatDate(iso) {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-// data: {
-//   base: "USD",
-//   date: "2026-06-29",
-//   referenceAmount: 100,
-//   title: "Travel Rates",
-//   theme: "midnight",
-//   destinations: [ { code, rate }, ... ]
-// }
-// size: { w, h }
-export function renderWallpaper(canvas, data, size) {
-  const { w, h } = size;
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d");
-  const s = w / 1290; // scale factor relative to the design reference width
-  const theme = THEMES[data.theme] || THEMES.midnight;
-  const fg = theme.dark ? "#ffffff" : "#0f172a";
-  const muted = theme.dark ? "rgba(255,255,255,0.62)" : "rgba(15,23,42,0.55)";
-  const cardBg = theme.dark ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.70)";
-  const cardLine = theme.dark ? "rgba(255,255,255,0.16)" : "rgba(15,23,42,0.10)";
+function isUsableBackgroundImage(img) {
+  return img && img.naturalWidth > 0 && img.naturalHeight > 0;
+}
 
-  // --- background gradient ---
+// Scale and center-crop like CSS object-fit: cover.
+function drawCoverImage(ctx, img, w, h) {
+  const iw = img.naturalWidth;
+  const ih = img.naturalHeight;
+  const scale = Math.max(w / iw, h / ih);
+  const sw = w / scale;
+  const sh = h / scale;
+  const sx = (iw - sw) / 2;
+  const sy = (ih - sh) / 2;
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+}
+
+// Semi-opaque vertical scrim; darker through the content band for legibility.
+function drawScrim(ctx, w, h) {
+  const scrim = ctx.createLinearGradient(0, 0, 0, h);
+  scrim.addColorStop(0, "rgba(0,0,0,0.25)");
+  scrim.addColorStop(0.30, "rgba(0,0,0,0.40)");
+  scrim.addColorStop(0.55, "rgba(0,0,0,0.55)");
+  scrim.addColorStop(0.85, "rgba(0,0,0,0.50)");
+  scrim.addColorStop(1, "rgba(0,0,0,0.35)");
+  ctx.fillStyle = scrim;
+  ctx.fillRect(0, 0, w, h);
+}
+
+function drawGradientBackground(ctx, theme, w, h) {
   const grad = ctx.createLinearGradient(0, 0, w * 0.4, h);
   grad.addColorStop(0, theme.stops[0]);
   grad.addColorStop(0.55, theme.stops[1]);
@@ -78,6 +85,65 @@ export function renderWallpaper(canvas, data, size) {
   glow.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, w, h);
+}
+
+function drawPhotoAttribution(ctx, photographer, w, h, s) {
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = "rgba(255,255,255,0.45)";
+  ctx.font = `400 ${22 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
+  ctx.fillText(`Photo: ${photographer} / Unsplash`, w / 2, h - 28 * s);
+}
+
+// data: {
+//   base: "USD",
+//   date: "2026-06-29",
+//   referenceAmount: 100,
+//   title: "Travel Rates",
+//   theme: "midnight",
+//   destinations: [ { code, rate }, ... ],
+//   background: HTMLImageElement | null | undefined,
+//   attribution: { photographer: string } | null | undefined,
+//   suggestedText: "light" | "dark" | undefined,
+//   dominantColor: string | undefined,
+// }
+// size: { w, h }
+export function renderWallpaper(canvas, data, size) {
+  const { w, h } = size;
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  const s = w / 1290; // scale factor relative to the design reference width
+  const theme = THEMES[data.theme] || THEMES.midnight;
+  const hasPhoto = isUsableBackgroundImage(data.background);
+
+  let fg;
+  let muted;
+  let cardBg;
+  let cardLine;
+  if (hasPhoto) {
+    // Light text and dark-over-photo card styles for legibility over the scrim.
+    fg = "#ffffff";
+    muted = "rgba(255,255,255,0.62)";
+    cardBg = "rgba(255,255,255,0.10)";
+    cardLine = "rgba(255,255,255,0.16)";
+  } else {
+    fg = theme.dark ? "#ffffff" : "#0f172a";
+    muted = theme.dark ? "rgba(255,255,255,0.62)" : "rgba(15,23,42,0.55)";
+    cardBg = theme.dark ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.70)";
+    cardLine = theme.dark ? "rgba(255,255,255,0.16)" : "rgba(15,23,42,0.10)";
+  }
+
+  if (hasPhoto) {
+    if (data.dominantColor) {
+      ctx.fillStyle = data.dominantColor;
+      ctx.fillRect(0, 0, w, h);
+    }
+    drawCoverImage(ctx, data.background, w, h);
+    drawScrim(ctx, w, h);
+  } else {
+    drawGradientBackground(ctx, theme, w, h);
+  }
 
   const baseMeta = currencyMeta(data.base);
   const margin = 96 * s;
@@ -141,6 +207,10 @@ export function renderWallpaper(canvas, data, size) {
   ctx.font = `500 ${26 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
   const when = data.date ? `Updated ${formatDate(data.date)}` : "";
   ctx.fillText(`${when}  ·  rates: ECB / frankfurter.dev`, w / 2, contentBottom + 40 * s);
+
+  if (hasPhoto && data.attribution?.photographer) {
+    drawPhotoAttribution(ctx, data.attribution.photographer, w, h, s);
+  }
 }
 
 function drawCard(ctx, o) {

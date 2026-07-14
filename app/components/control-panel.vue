@@ -55,6 +55,8 @@ const status = computed(() => {
       </div>
     </div>
 
+    <BackgroundPicker :state="state" />
+
     <div class="field-row">
       <div class="field">
         <label for="device">{{ $t("controls.device") }}</label>
