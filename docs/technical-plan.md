@@ -28,7 +28,7 @@ Phases 0 to 4 are complete. The app lives in the Nuxt layout below and paints a 
 Phase 5 polish work is still open, but the deployment path is settled: static GitHub Pages with `pnpm generate` and Nitro `preset: "github-pages"` (see `nuxt.config.ts` and `.github/workflows/deploy.yml`).
 
 * `app/pages/index.vue`: owns wallpaper state and rates; composes the control panel and preview.
-* `app/components/control-panel.vue`, `currency-controls.vue`, `background-picker.vue`, `position-toggle.vue`, `language-switcher.vue`, `wallpaper-preview.vue`: settings column, currency wall plus ladder inputs, photo picker, center/left position, language switcher, and client-only canvas preview with PNG download.
+* `app/components/control-panel.vue`, `currency-controls.vue`, `background-picker.vue`, `position-toggle.vue`, `language-switcher.vue`, `wallpaper-preview.vue`: settings column, currency wall plus ladder inputs, photo picker, center/left position, topbar language toggle, and client-only canvas preview with PNG download.
 * `app/composables/use-wallpaper-state.js`: persistent settings under `STORAGE_KEY` (`ome-currency-converter:v1`), including `home`, `travel`, ladder fields, and `position`.
 * `app/composables/use-rates.js`: fetches from the Nitro rates route for the home currency, with a direct Frankfurter fallback on static hosts; skips fetch when home is unset.
 * `app/utils/wallpaper.js`: pure canvas renderer; paints photo or gradient backgrounds and the increment table.
@@ -111,8 +111,9 @@ export const defaultState = {
   home: 'USD', // currency code, or null when cleared
   travel: 'JPY', // currency code, or null when cleared
   step: 5, // ladder step (integer, min 1)
-  rowCount: 5, // number of ladder rows (3 to 10)
-  includeOne: true, // prepend a 1-unit row when not already present
+  rowCount: 5, // number of ladder rows (3 to 30)
+  startAmount: 1, // first home amount (JPY default is 100 via defaultStartAmount)
+  includeFooter: true, // draw Updated date, rate credit, and photo credit at bottom center
   theme: 'midnight',
   device: 'pro-max',
   title: 'Travel rates',
@@ -149,25 +150,28 @@ Rates fetch uses `home` as the Frankfurter base when `home` is set. When only `t
 
 ## Ladder logic
 
-Generate the amount ladder from `step`, `rowCount`, and `includeOne`:
+Generate the amount ladder from `startAmount`, `step`, and `rowCount`:
 
 ```js
 // shared/utils/ladder.js
-export function buildLadder({ step, rowCount, includeOne }) {
+export function defaultStartAmount(code) {
+  if (code === 'JPY') return 100;
+  return 1;
+}
+
+export function buildLadder({ step, rowCount, startAmount }) {
   const rows = [];
-  if (includeOne) rows.push(1);
-  for (let i = 1; rows.length < rowCount; i++) {
-    const value = step * i;
-    if (!rows.includes(value)) rows.push(value);
+  for (let i = 0; rows.length < rowCount; i++) {
+    rows.push(startAmount + step * i);
   }
   return rows;
 }
-// step 5, rowCount 5, includeOne true  ->  [1, 5, 10, 15, 20]
-// step 1, rowCount 5, includeOne true  ->  [1, 2, 3, 4, 5] (the duplicate 1 is skipped)
-// step 5, rowCount 5, includeOne false ->  [5, 10, 15, 20, 25]
+// startAmount 1, step 5, rowCount 5   ->  [1, 6, 11, 16, 21]
+// startAmount 1, step 1, rowCount 5   ->  [1, 2, 3, 4, 5]
+// startAmount 100, step 100, rowCount 5 -> [100, 200, 300, 400, 500]
 ```
 
-Input constraints: `step` is an integer with a minimum of 1, and `rowCount` is an integer clamped to the range 3 to 10 so the ladder always fits the canvas. The UI inputs enforce these bounds, and `buildLadder` clamps its inputs again so the function stays safe when called directly.
+Input constraints: `step` and `startAmount` are integers with a minimum of 1, and `rowCount` is an integer clamped to the range 3 to 30 so the ladder always fits the canvas. The UI inputs enforce these bounds, and `buildLadder` clamps its inputs again so the function stays safe when called directly. `defaultStartAmount` returns 100 for JPY and 1 for other codes (including dollars). Changing the home currency updates `startAmount` when the user is still on the previous currency default.
 
 Placing `buildLadder` in `shared/utils/` keeps it a pure function that unit tests can import without booting Nuxt.
 
@@ -200,7 +204,7 @@ Placing `buildLadder` in `shared/utils/` keeps it a pure function that unit test
 The interface supports English and Japanese through the official `@nuxtjs/i18n` module (built on Vue I18n).
 
 * Locales: `en` (default) and `ja`. The `no_prefix` strategy fits a single-screen tool, so the URL does not change per language.
-* Language selection: detect the browser language on first visit, persist the choice in a cookie, and let the user switch at any time with a language switcher in the control panel.
+* Language selection: detect the browser language on first visit, persist the choice in a cookie, and let the user switch at any time with a language toggle button in the topbar.
 * Message files: `localization/en.json` and `localization/ja.json` hold every UI string. English is the source of truth for keys; the module's `langDir` option points at the existing `localization/` folder.
 * Terminology and style: Japanese translations follow [glossary.yaml](./glossary.yaml) and the [general style guides](./README.md#general-style-guides).
 * Currency names and numbers: use the built-in `Intl.DisplayNames` and `Intl.NumberFormat` APIs with the active locale, so currency names and number formats localize without hand-translated currency metadata.
@@ -224,7 +228,7 @@ Replace the destination-cards path with the increment-table path. Do not preserv
 1. Background: if `data.background` (a loaded image) is present, draw it cover-fit (scale to fill, center-crop) instead of the gradient, then draw a dark scrim gradient over it for text legibility. If no image is present, keep the gradient theme.
 2. Legibility scrim: a semi-opaque vertical gradient (darker where the content block sits) so light text stays readable over any photo. When `position` is left, weight the scrim toward the left.
 3. Positioning: support `data.position` of `center` or `left`. Center keeps a centered content panel. Left anchors the content block to the left portion of the canvas (roughly the left 55 to 60 percent) and left-aligns text, leaving the right side clear for app icons.
-4. Increment table renderer: `renderIncrementTable(ctx, ...)` is the only content layout. It draws a semi-transparent panel matching the hierarchy in [example-wallpaper.png](./example-wallpaper.png): column headers with currency codes (left = home, right = travel), then one row per ladder amount with home amount left and converted travel amount right. Format amounts with currency-appropriate symbols and separators (and compact forms such as `2.0K` when useful for large home steps).
+4. Increment table renderer: `renderIncrementTable(ctx, ...)` is the only content layout. It draws a semi-transparent panel matching the hierarchy in [example-wallpaper.png](./example-wallpaper.png): column headers with currency codes (left = home, right = travel), then one row per ladder amount with home amount left and converted travel amount right. Format amounts with currency-appropriate symbols and separators (and compact forms such as `2.0K` when useful for large home steps). Draw `data.title` above the table as typed (case-sensitive, emoji supported); the preview falls back to the localized default title when the field is empty.
 5. Attribution: when a photo background is used, draw a small photographer credit near the bottom edge.
 6. Keep `DEVICE_SIZES` and `THEMES` exports; the gradient themes remain the no-photo fallback.
 7. Incomplete pair: if `home` or `travel` is missing, or the travel rate is unavailable, do not invent amounts. The preview component shows an empty-state message and disables download instead of calling the table painter with guessed data.
@@ -236,10 +240,10 @@ The signature stays `renderWallpaper(canvas, data, size)`; the `data` object car
 
 * `app/components/wallpaper-preview.vue`: owns the `<canvas>`, watches the state and rates, calls `renderWallpaper` when the pair is complete, shows an incomplete-pair message otherwise, and handles PNG download via `canvas.toBlob`. Filename pattern: `wallpaper-<home>-<travel>.png`. Wrapped in `<ClientOnly>` by the page.
 * `app/components/control-panel.vue`: the settings column, composed of the smaller controls below.
-* `app/components/currency-controls.vue`: the currency wall plus step, row count, and include-one inputs. Remove the Home dropdown, destination multi-select, and any cards-only fields such as reference amount.
+* `app/components/currency-controls.vue`: the currency wall plus start amount, step, row count, and include-footer inputs. Home and travel chips show Iconify Material Symbols (`material-symbols:home` and `material-symbols:rocket-launch`). Remove the Home dropdown, destination multi-select, and any cards-only fields such as reference amount.
 * `app/components/background-picker.vue` (Phase 1): thumbnail grid built from `BACKGROUNDS`, with a "none" option that falls back to gradient themes.
 * `app/components/position-toggle.vue` (Phase 3): center or left.
-* `app/components/language-switcher.vue` (Phase 4): toggles the interface between English and Japanese.
+* `app/components/language-switcher.vue` (Phase 4): topbar button that toggles the interface between English and Japanese.
 * `app/components/attribution-note.vue` (Phase 5): shows the selected photo credit next to the preview.
 
 Do not add `mode-toggle.vue`. There is only one wallpaper layout.
@@ -320,7 +324,7 @@ The i18n `langDir` option points the module at the `localization/` folder. Treat
 
 ## Testing notes
 
-* Unit tests (Vitest): `buildLadder` (including the duplicate-1 skip and the step and row count clamps), currency-wall selection transitions (home-only, travel-only, re-tap, rotate on third tap), `formatAmount`, and the rates route handler with a mocked Frankfurter response.
+* Unit tests (Vitest): `buildLadder` and `defaultStartAmount` (including start/step/row-count clamps), currency-wall selection transitions (home-only, travel-only, re-tap, rotate on third tap), `formatAmount`, and the rates route handler with a mocked Frankfurter response.
 * Component tests (`@nuxt/test-utils`): currency controls enforce at most two selected roles; preview disables download when the pair is incomplete; background picker falls back to gradient on load failure.
 * Manual checks:
   * Verify PNG export works with a photo background selected (canvas not tainted).

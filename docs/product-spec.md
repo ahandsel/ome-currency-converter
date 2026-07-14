@@ -26,17 +26,17 @@ Travelers repeatedly do mental currency math while abroad. Converter apps requir
 
 The app has one wallpaper layout: the increment table. There is no cards layout and no mode toggle.
 
-The table always has two columns. The left column shows home amounts; the right column shows the converted travel amounts. For example, with home USD, travel JPY, step 5, and five rows including a leading 1:
+The table always has two columns. The left column shows home amounts; the right column shows the converted travel amounts. For example, with home USD, travel JPY, start amount 1, step 5, and five rows:
 
 | USD | JPY    |
 | --- | ------ |
 | $1  | ¥150   |
-| $5  | ¥750   |
-| $10 | ¥1,500 |
-| $15 | ¥2,250 |
-| $20 | ¥3,000 |
+| $6  | ¥900   |
+| $11 | ¥1,650 |
+| $16 | ¥2,400 |
+| $21 | ¥3,150 |
 
-The amounts are generated from a configurable step and row count, with an optional leading value of 1. The step is a whole number of at least 1, the row count is between 3 and 10, and duplicate amounts are skipped, so a step of 1 with the leading value of 1 produces 1, 2, 3, 4, 5.
+The amounts are generated from a configurable start amount, step, and row count. The step is a whole number of at least 1, the start amount is a whole number of at least 1 (defaults to 1 for dollars and 100 for yen), and the row count is between 3 and 30. The ladder is an arithmetic series: start, start + step, start + 2 * step, and so on.
 
 The visual hierarchy (semi-transparent table panel, column headers with currency codes, large readable amounts, and spacing) should match the reference in [example-wallpaper.png](./example-wallpaper.png).
 
@@ -70,7 +70,7 @@ The UI may keep a partial state (home only or travel only). The wallpaper previe
 
 1. The user opens the site. The interface appears in English or Japanese based on the browser language, and the user can switch languages at any time.
 2. The user picks home and travel currencies from the currency wall (at most one of each).
-3. The user sets the ladder step and row count.
+3. The user sets the ladder start amount, step, and row count.
 4. The user picks a background photo from a curated set of thumbnails.
 5. The user picks an iPhone model to set the wallpaper resolution.
 6. The user picks a content position: center, or left so app icons can sit on the right.
@@ -81,7 +81,8 @@ The UI may keep a partial state (home only or travel only). The wallpaper previe
 ## Feature list
 
 * Currency wall for selecting exactly one home currency and one travel currency.
-* Configurable ladder step and row count (optional leading row of 1).
+* Configurable ladder start amount, step, and row count (start defaults to 1 for dollars and 100 for yen).
+* Optional wallpaper footer at bottom center with the Updated date, rate credit, and photo credit (on by default).
 * Increment-table wallpaper: left column home amounts, right column travel amounts.
 * Custom wallpaper title with a localized default ("Travel rates"), drawn as the wallpaper header.
 * Curated photo background picker with a legibility scrim over the photo.
