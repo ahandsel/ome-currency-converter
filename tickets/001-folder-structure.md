@@ -1,4 +1,4 @@
-# Ticket 1: Folder structure audit and improvements
+# Ticket 001: Folder structure audit and improvements
 
 
 ## Overview
@@ -106,4 +106,4 @@ For every current root-level folder and notable config file, state whether it ma
 
 ## Workflow
 
-Per [tickets/README.md](README.md), create a branch named `ticket/1` and open a pull request when the work is done.
+Per [tickets/README.md](README.md), create a branch named `ticket/001` and open a pull request when the work is done.

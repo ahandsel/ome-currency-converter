@@ -1,7 +1,7 @@
 # Folder structure audit
 
 Status as of 2026-07-14.
-This note is the deliverable for [tickets/1-folder-structure.md](../tickets/1-folder-structure.md).
+This note is the deliverable for [tickets/001-folder-structure.md](../tickets/001-folder-structure.md).
 It is research and a proposal only. No folders were moved, renamed, or deleted.
 
 
@@ -236,7 +236,7 @@ Order is lowest risk to highest risk. Each change is for a follow-up ticket afte
 
 * Action: rename `localization/` to `i18n/`, move `en.json` (and future `ja.json`) to `i18n/locales/`, clear `restructureDir` and `langDir` overrides in `nuxt.config.ts` (or set them explicitly to the defaults), and update docs.
 * Fixed or discretionary: default paths are module convention, not a hard filesystem lock; the override is discretionary and already working.
-* Downstream references (non-exhaustive): `nuxt.config.ts`, `localization/README.md` (becomes `i18n/README.md`), [AGENTS.md](../AGENTS.md), [README.md](../README.md), [docs/technical-plan.md](../docs/technical-plan.md), [notes/2026-07-14-phase-0-status.md](./2026-07-14-phase-0-status.md), `prompts/build-webapp-orchestrator.prompt.md`, `prompts/two-currency-increment-table.prompt.md`, and [tickets/1-folder-structure.md](../tickets/1-folder-structure.md) historical mentions.
+* Downstream references (non-exhaustive): `nuxt.config.ts`, `localization/README.md` (becomes `i18n/README.md`), [AGENTS.md](../AGENTS.md), [README.md](../README.md), [docs/technical-plan.md](../docs/technical-plan.md), [notes/2026-07-14-phase-0-status.md](./2026-07-14-phase-0-status.md), `prompts/build-webapp-orchestrator.prompt.md`, `prompts/two-currency-increment-table.prompt.md`, and [tickets/001-folder-structure.md](../tickets/001-folder-structure.md) historical mentions.
 * Alternate (keep as-is): keep `localization/` and document the override as an approved deviation so future agents stop proposing the rename.
 
 
