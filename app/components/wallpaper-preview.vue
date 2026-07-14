@@ -3,6 +3,7 @@
 // change, and exports the canvas to a PNG download. Client-only; the page
 // wraps this component in <ClientOnly>.
 
+import { buildLadder } from '#shared/utils/ladder.js';
 import { loadBackgroundImage, getBackground } from '~/utils/backgrounds';
 import { renderWallpaper, DEVICE_SIZES } from '~/utils/wallpaper';
 
@@ -16,14 +17,13 @@ const emit = defineEmits(['download-error']);
 const canvasEl = ref(null);
 const loadedBackgroundImage = ref(null);
 
-// Keep only destinations the current base has a rate for, excluding the base.
-const activeDestinations = computed(() => {
-  if (!props.rates) return [];
-  return props.state.destinations
-    .filter(
-      (code) => code !== props.state.base && props.rates.rates[code] != null,
-    )
-    .map((code) => ({ code, rate: props.rates.rates[code] }));
+const isPairComplete = computed(() => {
+  const { home, travel } = props.state;
+  if (!home || !travel || home === travel) return false;
+  const latest = props.rates;
+  if (!latest || latest.base !== home) return false;
+  const rate = latest.rates?.[travel];
+  return Number.isFinite(rate);
 });
 
 function backgroundRenderFields() {
@@ -42,19 +42,36 @@ function backgroundRenderFields() {
 
 function draw() {
   const canvas = canvasEl.value;
-  const latest = props.rates;
-  if (!canvas || !latest || latest.base !== props.state.base) return;
+  if (!canvas) return;
   const size = DEVICE_SIZES[props.state.device] || DEVICE_SIZES['pro-max'];
+  const baseData = {
+    title: props.state.title,
+    theme: props.state.theme,
+    position: props.state.position,
+    ...backgroundRenderFields(),
+  };
+
+  if (!isPairComplete.value) {
+    renderWallpaper(canvas, baseData, size);
+    return;
+  }
+
+  const { home, travel } = props.state;
+  const ladder = buildLadder({
+    step: props.state.step,
+    rowCount: props.state.rowCount,
+    includeOne: props.state.includeOne,
+  });
+
   renderWallpaper(
     canvas,
     {
-      base: props.state.base,
-      date: latest.date,
-      referenceAmount: Number(props.state.referenceAmount) || 1,
-      title: props.state.title,
-      theme: props.state.theme,
-      destinations: activeDestinations.value,
-      ...backgroundRenderFields(),
+      ...baseData,
+      home,
+      travel,
+      ladder,
+      rate: props.rates.rates[travel],
+      date: props.rates.date,
     },
     size,
   );
@@ -94,12 +111,11 @@ watch(
 onMounted(draw);
 
 function downloadWallpaper() {
+  if (!isPairComplete.value) return;
   const canvas = canvasEl.value;
   if (!canvas) return;
-  const dests = props.state.destinations
-    .filter((c) => c !== props.state.base)
-    .join('-');
-  const name = `wallpaper-${props.state.base}-${dests || 'rates'}.png`;
+  const { home, travel } = props.state;
+  const name = `wallpaper-${home}-${travel}.png`;
   canvas.toBlob((blob) => {
     if (!blob) {
       emit('download-error');
@@ -126,7 +142,15 @@ function downloadWallpaper() {
       height="2796"
     ></canvas>
   </div>
-  <button type="button" class="btn primary" @click="downloadWallpaper">
+  <p v-if="!isPairComplete" class="hint" role="status">
+    {{ $t('status.incompletePair') }}
+  </p>
+  <button
+    type="button"
+    class="btn primary"
+    :disabled="!isPairComplete"
+    @click="downloadWallpaper"
+  >
     ⬇ {{ $t('preview.download') }}
   </button>
   <p class="save-hint">{{ $t('preview.saveHint') }}</p>

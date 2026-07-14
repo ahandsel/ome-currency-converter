@@ -8,6 +8,8 @@ Automated tests for the Ome Currency Converter web app.
 * `unit/` - Vitest unit tests for pure logic that runs without a browser or a Nuxt server.
   * `backgrounds.test.js` - covers the curated manifest in `app/utils/backgrounds.js`: twelve unique ids, required fields, Unsplash CDN and UTM shapes, and `getBackground` lookup.
   * `currencies.test.js` - covers `formatAmount` and `currencyMeta` from `shared/utils/currencies.js`: per-currency decimal places, thousands separators, and the fallback metadata for unknown currency codes.
+  * `currency-selection.test.js` - covers `applyCurrencyTap` from `shared/utils/currency-selection.js`: home-only, travel-only, re-tap, and rotate-on-third-tap transitions.
+  * `ladder.test.js` - covers `buildLadder` from `shared/utils/ladder.js`: plan examples, duplicate-1 skip, and step/row-count clamps.
   * `rates-route.test.js` - covers the handler in `server/api/rates/[base].get.js` with the Nitro auto-imports stubbed as globals and a mocked Frankfurter response: base code uppercasing, the exact `{ base, date, rates }` response shape, and the 400 error for unknown or missing base currencies.
 
 

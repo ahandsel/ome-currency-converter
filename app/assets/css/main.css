@@ -150,6 +150,18 @@ input:focus {
   color: #fff;
 }
 
+.chip.selected.home {
+  background: linear-gradient(135deg, var(--accent), #4f46e5);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.chip.selected.travel {
+  background: linear-gradient(135deg, var(--accent-2), #06b6d4);
+  border-color: var(--accent-2);
+  color: #07101f;
+}
+
 .chip .flag {
   font-size: 1.1rem;
 }
@@ -259,6 +271,14 @@ input:focus {
 
 .btn.primary:hover {
   filter: brightness(1.05);
+}
+
+.btn:disabled,
+.btn.primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
 }
 
 .btn.ghost {

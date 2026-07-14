@@ -4,9 +4,9 @@ A web app that generates an iPhone wallpaper showing a home-to-travel currency e
 Rates come from the European Central Bank via the Frankfurter API.
 
 The app is built on [Nuxt](https://nuxt.com/) 4, the full-stack Vue framework.
-Phase 0 of [docs/technical-plan.md](docs/technical-plan.md), the migration from the old Vite prototype, is complete.
-Phases 1 to 5 (photo backgrounds, increment-table wallpaper and currency-wall selection, positioning, Japanese localization, and polish) are still pending.
-The product target is a single home/travel pair on an increment-table wallpaper; multi-destination cards are out of scope.
+Phases 0 to 2 of [docs/technical-plan.md](docs/technical-plan.md) are complete: Nuxt migration, photo backgrounds, and the home/travel increment-table wallpaper.
+Phases 3 to 5 (positioning, Japanese localization, and polish) are still pending.
+Multi-destination cards are out of scope.
 
 
 ## Project structure
@@ -19,7 +19,7 @@ The product target is a single home/travel pair on an increment-table wallpaper;
   * `app/utils/` - the pure canvas renderer.
   * `app/assets/css/` - the global stylesheet.
 * `server/` - Nitro server code; `server/api/rates/[base].get.js` is a cached proxy for the Frankfurter API.
-* `shared/` - code used by both the app and the server, such as the currency metadata in `shared/utils/currencies.js`.
+* `shared/` - code used by both the app and the server, such as currency metadata, the amount ladder, and currency-wall selection helpers.
 * `public/` - static files copied verbatim into the build output (for example, `favicon.ico`).
 * `localization/` - locale message files for the `@nuxtjs/i18n` module.
 * `tests/` - automated tests.

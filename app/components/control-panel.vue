@@ -1,6 +1,6 @@
 <script setup>
-// The settings column: currency controls, reference amount, theme, device,
-// title, the refresh button, and the shared status line.
+// The settings column: currency controls, theme, device, title, background
+// picker, the refresh button, and the shared status line.
 
 import { THEMES, DEVICE_SIZES } from '~/utils/wallpaper';
 
@@ -37,27 +37,13 @@ const status = computed(() => {
   <section class="controls" :aria-label="$t('controls.ariaLabel')">
     <CurrencyControls :state="state" />
 
-    <div class="field-row">
-      <div class="field">
-        <label for="ref">{{ $t('controls.referenceAmount') }}</label>
-        <input
-          id="ref"
-          v-model="state.referenceAmount"
-          type="number"
-          min="1"
-          step="1"
-          inputmode="numeric"
-        />
-        <p class="hint">{{ $t('controls.referenceAmountHint') }}</p>
-      </div>
-      <div class="field">
-        <label for="theme">{{ $t('controls.theme') }}</label>
-        <select id="theme" v-model="state.theme">
-          <option v-for="(themeOption, key) in THEMES" :key="key" :value="key">
-            {{ themeOption.label }}
-          </option>
-        </select>
-      </div>
+    <div class="field">
+      <label for="theme">{{ $t('controls.theme') }}</label>
+      <select id="theme" v-model="state.theme">
+        <option v-for="(themeOption, key) in THEMES" :key="key" :value="key">
+          {{ themeOption.label }}
+        </option>
+      </select>
     </div>
 
     <BackgroundPicker :state="state" />

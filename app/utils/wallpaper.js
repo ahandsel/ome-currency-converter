@@ -41,6 +41,9 @@ export const THEMES = {
   },
 };
 
+// Home-column amounts at or above this value use a compact K suffix.
+const COMPACT_HOME_THRESHOLD = 1000;
+
 function roundRect(ctx, x, y, w, h, r) {
   if (typeof ctx.roundRect === 'function') {
     ctx.beginPath();
@@ -69,6 +72,13 @@ function formatDate(iso) {
 
 function isUsableBackgroundImage(img) {
   return img && img.naturalWidth > 0 && img.naturalHeight > 0;
+}
+
+function isCompleteRenderData(data) {
+  if (!data.home || !data.travel) return false;
+  if (!Array.isArray(data.ladder) || data.ladder.length === 0) return false;
+  if (!Number.isFinite(data.rate)) return false;
+  return true;
 }
 
 // Scale and center-crop like CSS object-fit: cover.
@@ -129,17 +139,137 @@ function drawPhotoAttribution(ctx, photographer, w, h, s) {
   ctx.fillText(`Photo: ${photographer} / Unsplash`, w / 2, h - 28 * s);
 }
 
+function formatCompactThousands(value) {
+  return `${(value / 1000).toFixed(1)}K`;
+}
+
+function formatHomeCell(amount, code) {
+  const meta = currencyMeta(code);
+  if (amount >= COMPACT_HOME_THRESHOLD) {
+    return `${meta.symbol}${formatCompactThousands(amount)}`;
+  }
+  return `${meta.symbol}${formatAmount(amount, code)}`;
+}
+
+function formatTravelCell(amount, code) {
+  const meta = currencyMeta(code);
+  return `${meta.symbol}${formatAmount(amount, code)}`;
+}
+
+function renderIncrementTable(ctx, o) {
+  const {
+    x,
+    y,
+    w,
+    maxH,
+    s,
+    home,
+    travel,
+    ladder,
+    rate,
+    fg,
+    panelBg,
+    panelLine,
+    zebraBg,
+    headerBg,
+  } = o;
+
+  const rowCount = ladder.length;
+  const radius = 28 * s;
+  const headerH = 72 * s;
+  const minRowH = 56 * s;
+  const maxRowH = 108 * s;
+  const rowH = Math.max(
+    minRowH,
+    Math.min(maxRowH, (maxH - headerH) / rowCount),
+  );
+  const panelH = headerH + rowH * rowCount;
+  const colMid = x + w / 2;
+  const amountSize = Math.min(56 * s, rowH * 0.42);
+  const headerSize = Math.min(34 * s, headerH * 0.45);
+
+  ctx.save();
+
+  // Panel surface
+  ctx.fillStyle = panelBg;
+  roundRect(ctx, x, y, w, panelH, radius);
+  ctx.fill();
+  ctx.lineWidth = 2 * s;
+  ctx.strokeStyle = panelLine;
+  ctx.stroke();
+
+  // Header band
+  ctx.save();
+  roundRect(ctx, x, y, w, panelH, radius);
+  ctx.clip();
+  ctx.fillStyle = headerBg;
+  ctx.fillRect(x, y, w, headerH);
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = fg;
+  ctx.font = `700 ${headerSize}px -apple-system, "Segoe UI", system-ui, sans-serif`;
+  ctx.fillText(home, x + w * 0.25, y + headerH / 2);
+  ctx.fillText(travel, x + w * 0.75, y + headerH / 2);
+
+  // Column divider and header underline
+  ctx.strokeStyle = panelLine;
+  ctx.lineWidth = 1.5 * s;
+  ctx.beginPath();
+  ctx.moveTo(colMid, y);
+  ctx.lineTo(colMid, y + panelH);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x, y + headerH);
+  ctx.lineTo(x + w, y + headerH);
+  ctx.stroke();
+
+  // Data rows
+  for (let i = 0; i < rowCount; i++) {
+    const rowY = y + headerH + rowH * i;
+    if (i % 2 === 1) {
+      ctx.fillStyle = zebraBg;
+      ctx.fillRect(x, rowY, w, rowH);
+    }
+
+    if (i > 0) {
+      ctx.strokeStyle = panelLine;
+      ctx.lineWidth = 1 * s;
+      ctx.beginPath();
+      ctx.moveTo(x, rowY);
+      ctx.lineTo(x + w, rowY);
+      ctx.stroke();
+    }
+
+    const homeAmount = ladder[i];
+    const travelAmount = homeAmount * rate;
+    const midY = rowY + rowH / 2;
+
+    ctx.fillStyle = fg;
+    ctx.font = `600 ${amountSize}px -apple-system, "Segoe UI", system-ui, sans-serif`;
+    ctx.fillText(formatHomeCell(homeAmount, home), x + w * 0.25, midY);
+    ctx.fillText(formatTravelCell(travelAmount, travel), x + w * 0.75, midY);
+  }
+
+  ctx.restore();
+  ctx.restore();
+
+  return { panelH };
+}
+
 // data: {
-//   base: "USD",
-//   date: "2026-06-29",
-//   referenceAmount: 100,
-//   title: "Travel Rates",
+//   home: "USD",
+//   travel: "JPY",
+//   ladder: [1, 5, 10, 15, 20],
+//   rate: 150.2,
+//   date: "2026-07-14",
+//   title: "Travel rates",
 //   theme: "midnight",
-//   destinations: [ { code, rate }, ... ],
 //   background: HTMLImageElement | null | undefined,
 //   attribution: { photographer: string } | null | undefined,
 //   suggestedText: "light" | "dark" | undefined,
 //   dominantColor: string | undefined,
+//   position: "center" | "left",
 // }
 // size: { w, h }
 export function renderWallpaper(canvas, data, size) {
@@ -150,23 +280,6 @@ export function renderWallpaper(canvas, data, size) {
   const s = w / 1290; // scale factor relative to the design reference width
   const theme = THEMES[data.theme] || THEMES.midnight;
   const hasPhoto = isUsableBackgroundImage(data.background);
-
-  let fg;
-  let muted;
-  let cardBg;
-  let cardLine;
-  if (hasPhoto) {
-    // Light text and dark-over-photo card styles for legibility over the scrim.
-    fg = '#ffffff';
-    muted = 'rgba(255,255,255,0.62)';
-    cardBg = 'rgba(255,255,255,0.10)';
-    cardLine = 'rgba(255,255,255,0.16)';
-  } else {
-    fg = theme.dark ? '#ffffff' : '#0f172a';
-    muted = theme.dark ? 'rgba(255,255,255,0.62)' : 'rgba(15,23,42,0.55)';
-    cardBg = theme.dark ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.70)';
-    cardLine = theme.dark ? 'rgba(255,255,255,0.16)' : 'rgba(15,23,42,0.10)';
-  }
 
   if (hasPhoto) {
     if (data.dominantColor) {
@@ -179,63 +292,64 @@ export function renderWallpaper(canvas, data, size) {
     drawGradientBackground(ctx, theme, w, h);
   }
 
-  const baseMeta = currencyMeta(data.base);
+  if (hasPhoto && data.attribution?.photographer) {
+    drawPhotoAttribution(ctx, data.attribution.photographer, w, h, s);
+  }
+
+  if (!isCompleteRenderData(data)) return;
+
+  let fg;
+  let muted;
+  let panelBg;
+  let panelLine;
+  let zebraBg;
+  let headerBg;
+  if (hasPhoto) {
+    fg = '#ffffff';
+    muted = 'rgba(255,255,255,0.62)';
+    panelBg = 'rgba(0,0,0,0.58)';
+    panelLine = 'rgba(255,255,255,0.14)';
+    zebraBg = 'rgba(255,255,255,0.05)';
+    headerBg = 'rgba(255,255,255,0.08)';
+  } else {
+    fg = theme.dark ? '#ffffff' : '#0f172a';
+    muted = theme.dark ? 'rgba(255,255,255,0.62)' : 'rgba(15,23,42,0.55)';
+    panelBg = theme.dark ? 'rgba(0,0,0,0.50)' : 'rgba(255,255,255,0.78)';
+    panelLine = theme.dark ? 'rgba(255,255,255,0.14)' : 'rgba(15,23,42,0.10)';
+    zebraBg = theme.dark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.04)';
+    headerBg = theme.dark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.06)';
+  }
+
   const margin = 96 * s;
 
   // Content lives in the lower ~70% so the lock-screen clock/date (top ~26%)
-  // stays clear. We lay the block out from contentTop downward.
+  // stays clear. Phase 3 adds left anchoring; for now always center the panel.
   const contentTop = h * 0.3;
   const contentBottom = h * 0.93;
+  const panelW = w - margin * 2;
+  const panelX = margin;
+  const footerReserve = 56 * s;
+  const maxPanelH = contentBottom - contentTop - footerReserve;
+
   ctx.textBaseline = 'alphabetic';
 
-  // --- header ---
-  let y = contentTop;
-  ctx.textAlign = 'center';
-  ctx.fillStyle = muted;
-  ctx.font = `600 ${34 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-  const title = (data.title || 'Travel exchange rates').toUpperCase();
-  ctx.fillText(spaced(title), w / 2, y);
+  const { panelH } = renderIncrementTable(ctx, {
+    x: panelX,
+    y: contentTop,
+    w: panelW,
+    maxH: maxPanelH,
+    s,
+    home: data.home,
+    travel: data.travel,
+    ladder: data.ladder,
+    rate: data.rate,
+    fg,
+    panelBg,
+    panelLine,
+    zebraBg,
+    headerBg,
+  });
 
-  y += 86 * s;
-  ctx.fillStyle = fg;
-  ctx.font = `700 ${64 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-  ctx.fillText(`${baseMeta.flag}  1 ${data.base}`, w / 2, y);
-
-  y += 44 * s;
-  ctx.fillStyle = muted;
-  ctx.font = `500 ${30 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-  ctx.fillText(baseMeta.name, w / 2, y);
-
-  // --- destination cards ---
-  const cardsTop = y + 70 * s;
-  const cardGap = 28 * s;
-  const n = Math.max(data.destinations.length, 1);
-  const available = contentBottom - cardsTop - 70 * s; // reserve space for footer
-  let cardH = (available - cardGap * (n - 1)) / n;
-  cardH = Math.max(150 * s, Math.min(cardH, 280 * s));
-  const cardW = w - margin * 2;
-
-  let cy = cardsTop;
-  for (const dest of data.destinations) {
-    drawCard(ctx, {
-      x: margin,
-      y: cy,
-      w: cardW,
-      h: cardH,
-      s,
-      fg,
-      muted,
-      cardBg,
-      cardLine,
-      base: data.base,
-      baseMeta,
-      dest,
-      referenceAmount: data.referenceAmount,
-    });
-    cy += cardH + cardGap;
-  }
-
-  // --- footer ---
   ctx.textAlign = 'center';
   ctx.fillStyle = muted;
   ctx.font = `500 ${26 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
@@ -243,82 +357,6 @@ export function renderWallpaper(canvas, data, size) {
   ctx.fillText(
     `${when}  ·  rates: ECB / frankfurter.dev`,
     w / 2,
-    contentBottom + 40 * s,
+    contentTop + panelH + footerReserve,
   );
-
-  if (hasPhoto && data.attribution?.photographer) {
-    drawPhotoAttribution(ctx, data.attribution.photographer, w, h, s);
-  }
-}
-
-function drawCard(ctx, o) {
-  const {
-    x,
-    y,
-    w,
-    h,
-    s,
-    fg,
-    muted,
-    cardBg,
-    cardLine,
-    base,
-    baseMeta,
-    dest,
-    referenceAmount,
-  } = o;
-  const meta = currencyMeta(dest.code);
-
-  // card surface
-  ctx.fillStyle = cardBg;
-  roundRect(ctx, x, y, w, h, 36 * s);
-  ctx.fill();
-  ctx.lineWidth = 2 * s;
-  ctx.strokeStyle = cardLine;
-  ctx.stroke();
-
-  const padX = 48 * s;
-  const midY = y + h / 2;
-
-  // left: flag + code + name
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'middle';
-  const flagSize = Math.min(96 * s, h * 0.5);
-  ctx.font = `${flagSize}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-  ctx.fillStyle = fg;
-  ctx.fillText(meta.flag, x + padX, midY);
-
-  const textX = x + padX + flagSize + 30 * s;
-  ctx.font = `700 ${52 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-  ctx.fillStyle = fg;
-  ctx.fillText(dest.code, textX, midY - 26 * s);
-  ctx.font = `500 ${28 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-  ctx.fillStyle = muted;
-  ctx.fillText(truncate(meta.name, 18), textX, midY + 26 * s);
-
-  // right: big value for 1 base unit + small reference conversion
-  ctx.textAlign = 'right';
-  const rightX = x + w - padX;
-  ctx.font = `700 ${64 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-  ctx.fillStyle = fg;
-  ctx.fillText(
-    `${meta.symbol}${formatAmount(dest.rate, dest.code)}`,
-    rightX,
-    midY - 26 * s,
-  );
-
-  ctx.font = `500 ${28 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-  ctx.fillStyle = muted;
-  const refVal = dest.rate * referenceAmount;
-  const refLine = `${baseMeta.symbol}${formatAmount(referenceAmount, base)} = ${meta.symbol}${formatAmount(refVal, dest.code)}`;
-  ctx.fillText(refLine, rightX, midY + 28 * s);
-}
-
-// Insert thin spaces between letters for a tracked-out label look.
-function spaced(str) {
-  return str.split('').join(' ');
-}
-
-function truncate(str, max) {
-  return str.length > max ? str.slice(0, max - 1) + '…' : str;
 }

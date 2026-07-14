@@ -6,7 +6,7 @@
 const { t } = useI18n();
 
 const state = useWallpaperState();
-const { rates, pending, error, refresh } = useRates(() => state.value.base);
+const { rates, pending, error, refresh } = useRates(() => state.value.home);
 
 // The preview raises download failures here so the control panel's status
 // line can show them, mirroring the prototype's shared status element.

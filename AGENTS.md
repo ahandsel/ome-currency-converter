@@ -14,9 +14,9 @@ These rules apply to all AI agents working in this repository. This is the canon
 
 Ome Currency Converting Wallpaper is a web app that generates an iPhone wallpaper containing a currency exchange reference. The wallpaper itself is the product; the controls exist only to configure it. A user picks exactly one home currency and one travel currency on a shared currency wall, configures an amount ladder (step and row count), chooses a background and an iPhone size, then downloads a PNG sized to their device. The wallpaper is a two-column increment table (left = home amounts, right = travel amounts). The interface supports English and Japanese.
 
-The app runs on [Nuxt](https://nuxt.com/) 4, the full-stack Vue framework. Phase 0 of [docs/technical-plan.md](docs/technical-plan.md), the migration from the old Vite prototype, is complete. That migration preserved a temporary cards-style UI for parity with the prototype; cards and multi-destination layouts are out of product scope. Phases 1 to 5 (photo backgrounds, increment-table wallpaper and currency-wall selection, positioning, Japanese localization, and polish) are still pending. Phase 2 replaces the cards UI with the increment table as the only wallpaper layout.
+The app runs on [Nuxt](https://nuxt.com/) 4, the full-stack Vue framework. Phases 0 to 2 of [docs/technical-plan.md](docs/technical-plan.md) are complete: Nuxt migration, curated photo backgrounds, and the home/travel increment-table wallpaper with currency-wall selection. Phases 3 to 5 (positioning, Japanese localization, and polish) are still pending.
 
-Live rates come from the keyless, CORS-enabled Frankfurter API (European Central Bank reference rates). Backgrounds are gradient themes today; Phase 1 adds a curated, bundled set of Unsplash photo links (no API key). The wallpaper is painted on a `<canvas>` at full device resolution and exported to PNG.
+Live rates come from the keyless, CORS-enabled Frankfurter API (European Central Bank reference rates). Backgrounds are curated Unsplash photos with gradient themes as the fallback. The wallpaper is painted on a `<canvas>` at full device resolution and exported to PNG.
 
 For the full specification, read the planning documents before making product changes:
 
@@ -36,7 +36,7 @@ For the full specification, read the planning documents before making product ch
   * `app/utils/` - plain JavaScript helpers; `wallpaper.js` is the pure canvas renderer.
   * `app/assets/` - bundled assets; `css/main.css` is the global stylesheet.
 * `server/` - Nitro server code; `server/api/rates/[base].get.js` proxies and caches the Frankfurter API.
-* `shared/` - code shared by the app and the server; `shared/utils/currencies.js` holds the built-in currency metadata.
+* `shared/` - code shared by the app and the server; `shared/utils/currencies.js` holds the built-in currency metadata, `ladder.js` builds amount rows, and `currency-selection.js` owns the currency-wall state machine.
 * `public/` - static files served verbatim at the site root (for example, `favicon.ico`).
 * `localization/` - locale message files for the English and Japanese interface.
 * `tests/` - automated tests.
@@ -45,7 +45,7 @@ For the full specification, read the planning documents before making product ch
 * `scripts/` - development tools and automation scripts.
 * `skills/` - reusable AI workflows, each with a `SKILL.md` file.
 
-Phase 0 of [docs/technical-plan.md](docs/technical-plan.md) produced this layout. Later phases add feature modules inside it, such as `app/utils/backgrounds.js` in Phase 1 and `shared/utils/ladder.js` in Phase 2.
+Phase 0 of [docs/technical-plan.md](docs/technical-plan.md) produced this layout. Phase 1 added `app/utils/backgrounds.js`. Phase 2 added `shared/utils/ladder.js` and `shared/utils/currency-selection.js`.
 
 
 ### README.md
@@ -77,9 +77,9 @@ The current app:
 * `app/pages/index.vue` owns the single wallpaper state and the single rates instance and passes both down to the components as props.
 * `app/composables/use-wallpaper-state.js` holds the settings and persists them to `localStorage` under the same key as the old prototype.
 * `server/api/rates/[base].get.js` is a cached Nitro route that proxies the Frankfurter API. `app/composables/use-rates.js` fetches from it and falls back to calling Frankfurter directly on static hosts where the route does not exist.
-* `app/utils/wallpaper.js` is the pure renderer. Today it still paints the Phase 0 cards-style content on a `<canvas>`; Phase 2 replaces that with the increment-table layout. `app/components/wallpaper-preview.vue` shows the live preview and exports to PNG.
+* `app/utils/wallpaper.js` is the pure renderer. It paints a photo or gradient background and the two-column increment table on a `<canvas>`. `app/components/wallpaper-preview.vue` shows the live preview and exports to PNG.
 
-Later phases extend this flow. Phase 1 adds `app/utils/backgrounds.js`, which exports the curated `BACKGROUNDS` manifest and a `loadBackgroundImage(id)` helper that sets `crossOrigin = "anonymous"` so the canvas stays exportable. Phase 2 adds `shared/utils/ladder.js` and rewires currency controls and the renderer for the home/travel increment table. When extending the app, follow the phased roadmap and per-area plan in [docs/technical-plan.md](docs/technical-plan.md).
+`app/utils/backgrounds.js` exports the curated `BACKGROUNDS` manifest and a `loadBackgroundImage(id)` helper that sets `crossOrigin = "anonymous"` so the canvas stays exportable. `shared/utils/ladder.js` and `shared/utils/currency-selection.js` support the home/travel increment table. When extending the app, follow the phased roadmap and per-area plan in [docs/technical-plan.md](docs/technical-plan.md).
 
 
 ## Skills

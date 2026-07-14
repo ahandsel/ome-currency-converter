@@ -24,25 +24,56 @@ function isRatesPayload(value) {
   );
 }
 
-// Fetch the latest rates for `base`, a ref (or getter) of the base currency
+// Fetch the latest rates for `base`, a ref (or getter) of the home currency
 // code. Returns { rates, pending, error, refresh } where `rates` is a ref
 // holding { base, date, rates } or null, and refresh() refetches.
 export function useRates(base) {
   const direct = ref(frankfurterDirect);
 
-  // Reactive URL: changing the base (or flipping to direct mode) refetches.
+  const baseCode = computed(() => {
+    const raw = toValue(base);
+    if (raw == null || String(raw).trim() === '') return null;
+    return String(raw).toUpperCase();
+  });
+
+  // When home is unset, keep url null so useFetch never calls /api/rates/NULL.
+  // A watcher clears stale data and only calls refresh() when a code is set.
   const url = computed(() => {
-    const code = encodeURIComponent(String(toValue(base)).toUpperCase());
+    const code = baseCode.value;
+    if (!code) return null;
     return direct.value
-      ? `${FRANKFURTER_URL}/latest?base=${code}`
-      : `/api/rates/${code}`;
+      ? `${FRANKFURTER_URL}/latest?base=${encodeURIComponent(code)}`
+      : `/api/rates/${encodeURIComponent(code)}`;
   });
 
-  const { data, status, error, refresh } = useFetch(url, {
+  const {
+    data,
+    status,
+    error,
+    refresh: refetch,
+  } = useFetch(url, {
     default: () => null,
+    immediate: false,
+    watch: false,
   });
 
-  const pending = computed(() => status.value === 'pending');
+  watch(
+    url,
+    (nextUrl) => {
+      if (nextUrl) {
+        refetch();
+      } else {
+        data.value = null;
+        status.value = 'idle';
+        error.value = null;
+      }
+    },
+    { immediate: true },
+  );
+
+  const pending = computed(
+    () => baseCode.value != null && status.value === 'pending',
+  );
 
   // Normalize both response shapes to { base, date, rates }; the direct
   // Frankfurter response carries an extra `amount` field the app ignores.
@@ -57,13 +88,13 @@ export function useRates(base) {
   );
 
   // Client-only fallback: when the proxy route fails, flip to direct mode
-  // once. The url computed changes, so useFetch refetches from Frankfurter.
+  // once. The url computed changes, so the watcher refetches from Frankfurter.
   // `immediate: true` also catches an error hydrated from the SSR payload.
   if (import.meta.client) {
     watch(
       [error, data],
       () => {
-        if (direct.value) return;
+        if (direct.value || !baseCode.value) return;
         const failed =
           error.value || (data.value != null && !isRatesPayload(data.value));
         if (!failed) return;
@@ -72,6 +103,11 @@ export function useRates(base) {
       },
       { immediate: true },
     );
+  }
+
+  function refresh() {
+    if (!baseCode.value) return Promise.resolve();
+    return refetch();
   }
 
   return { rates, pending, error, refresh };
