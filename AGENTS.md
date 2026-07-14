@@ -3,6 +3,13 @@
 These rules apply to all AI agents working in this repository. This is the canonical instructions file.
 
 
+## Git commits and pull requests
+
+* Never add yourself (or any AI agent) as a coauthor on commits or pull requests.
+* Do not include a `Co-Authored-By` trailer in commit messages.
+* Do not attribute AI agents as coauthors in pull request titles, bodies, or metadata.
+
+
 ## Project overview
 
 Ome Currency Converting Wallpaper is a web app that generates an iPhone wallpaper containing a currency exchange reference. The wallpaper itself is the product; the controls exist only to configure it. A user picks exactly one home currency and one travel currency on a shared currency wall, configures an amount ladder (step and row count), chooses a background and an iPhone size, then downloads a PNG sized to their device. The wallpaper is a two-column increment table (left = home amounts, right = travel amounts). The interface supports English and Japanese.

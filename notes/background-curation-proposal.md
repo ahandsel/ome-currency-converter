@@ -1,8 +1,6 @@
 # Background curation proposal
 
-
 This note proposes 12 Unsplash photos for the curated wallpaper backgrounds listed in [docs/backgrounds.md](../docs/backgrounds.md). It is a propose-then-approve review only. Do not wire any photo into `app/utils/backgrounds.js` until the maintainer marks each slot keep, swap, or reject.
-
 
 Criteria used for every pick:
 
@@ -10,7 +8,6 @@ Criteria used for every pick:
 * Phone-wallpaper friendly framing where a portrait-friendly crop exists
 * Free Unsplash License photos (not Unsplash+ / Getty locks)
 * Stable `images.unsplash.com/photo-...` CDN ids, with `fullUrl` / `thumbUrl` params ready to copy
-
 
 CDN URL pattern for every slot:
 
@@ -21,7 +18,6 @@ CDN URL pattern for every slot:
 
 
 ## Slot 1: dusk-gradient
-
 
 * **id**: `dusk-gradient`
 * **label**: Dusk gradient
@@ -38,7 +34,6 @@ CDN URL pattern for every slot:
 
 
 ## Slot 2: ocean-teal
-
 
 * **id**: `ocean-teal`
 * **label**: Teal ocean
@@ -57,7 +52,6 @@ CDN URL pattern for every slot:
 
 ## Slot 3: mountain-fog
 
-
 * **id**: `mountain-fog`
 * **label**: Foggy mountains
 * **theme**: Foggy mountains
@@ -73,7 +67,6 @@ CDN URL pattern for every slot:
 
 
 ## Slot 4: desert-dune
-
 
 * **id**: `desert-dune`
 * **label**: Desert dunes
@@ -92,7 +85,6 @@ CDN URL pattern for every slot:
 
 ## Slot 5: forest-dark
 
-
 * **id**: `forest-dark`
 * **label**: Deep forest
 * **theme**: Deep green forest
@@ -110,7 +102,6 @@ CDN URL pattern for every slot:
 
 ## Slot 6: city-night
 
-
 * **id**: `city-night`
 * **label**: City lights
 * **theme**: City lights at night
@@ -127,7 +118,6 @@ CDN URL pattern for every slot:
 
 
 ## Slot 7: sakura-soft
-
 
 * **id**: `sakura-soft`
 * **label**: Soft sakura
@@ -147,7 +137,6 @@ CDN URL pattern for every slot:
 
 ## Slot 8: snow-minimal
 
-
 * **id**: `snow-minimal`
 * **label**: Snow field
 * **theme**: Minimal snow field
@@ -163,7 +152,6 @@ CDN URL pattern for every slot:
 
 
 ## Slot 9: sunset-warm
-
 
 * **id**: `sunset-warm`
 * **label**: Warm sunset
@@ -183,7 +171,6 @@ CDN URL pattern for every slot:
 
 ## Slot 10: marble-light
 
-
 * **id**: `marble-light`
 * **label**: Light marble
 * **theme**: Light marble texture
@@ -199,7 +186,6 @@ CDN URL pattern for every slot:
 
 
 ## Slot 11: night-sky
-
 
 * **id**: `night-sky`
 * **label**: Night sky
@@ -217,7 +203,6 @@ CDN URL pattern for every slot:
 
 ## Slot 12: paper-neutral
 
-
 * **id**: `paper-neutral`
 * **label**: Neutral paper
 * **theme**: Neutral paper texture
@@ -233,7 +218,6 @@ CDN URL pattern for every slot:
 
 
 ## Ready-to-copy manifest sketch
-
 
 After approval, entries can land in `BACKGROUNDS` roughly like this (one example shown; repeat the same shape for all 12):
 
@@ -253,7 +237,6 @@ After approval, entries can land in `BACKGROUNDS` roughly like this (one example
 
 
 ## Approval
-
 
 Please mark each slot as **keep**, **swap** (name the alternative), or **reject**.
 

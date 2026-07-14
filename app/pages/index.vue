@@ -18,16 +18,16 @@ watch(pending, (isPending) => {
 });
 
 useSeoMeta({
-  title: () => t("app.metaTitle"),
-  description: () => t("app.metaDescription"),
+  title: () => t('app.metaTitle'),
+  description: () => t('app.metaDescription'),
 });
 </script>
 
 <template>
   <div>
     <header class="topbar">
-      <h1>💱 {{ $t("app.title") }}</h1>
-      <p class="tagline">{{ $t("app.tagline") }}</p>
+      <h1>💱 {{ $t('app.title') }}</h1>
+      <p class="tagline">{{ $t('app.tagline') }}</p>
     </header>
 
     <main class="layout">
@@ -55,7 +55,9 @@ useSeoMeta({
       <p>
         <i18n-t keypath="footer.credit" scope="global">
           <template #link>
-            <a href="https://frankfurter.dev" target="_blank" rel="noopener">frankfurter.dev</a>
+            <a href="https://frankfurter.dev" target="_blank" rel="noopener"
+              >frankfurter.dev</a
+            >
           </template>
         </i18n-t>
       </p>

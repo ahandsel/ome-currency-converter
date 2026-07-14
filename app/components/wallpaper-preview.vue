@@ -3,15 +3,15 @@
 // change, and exports the canvas to a PNG download. Client-only; the page
 // wraps this component in <ClientOnly>.
 
-import { loadBackgroundImage, getBackground } from "~/utils/backgrounds";
-import { renderWallpaper, DEVICE_SIZES } from "~/utils/wallpaper";
+import { loadBackgroundImage, getBackground } from '~/utils/backgrounds';
+import { renderWallpaper, DEVICE_SIZES } from '~/utils/wallpaper';
 
 const props = defineProps({
   state: { type: Object, required: true },
   rates: { type: Object, default: null },
 });
 
-const emit = defineEmits(["download-error"]);
+const emit = defineEmits(['download-error']);
 
 const canvasEl = ref(null);
 const loadedBackgroundImage = ref(null);
@@ -20,7 +20,9 @@ const loadedBackgroundImage = ref(null);
 const activeDestinations = computed(() => {
   if (!props.rates) return [];
   return props.state.destinations
-    .filter((code) => code !== props.state.base && props.rates.rates[code] != null)
+    .filter(
+      (code) => code !== props.state.base && props.rates.rates[code] != null,
+    )
     .map((code) => ({ code, rate: props.rates.rates[code] }));
 });
 
@@ -42,7 +44,7 @@ function draw() {
   const canvas = canvasEl.value;
   const latest = props.rates;
   if (!canvas || !latest || latest.base !== props.state.base) return;
-  const size = DEVICE_SIZES[props.state.device] || DEVICE_SIZES["pro-max"];
+  const size = DEVICE_SIZES[props.state.device] || DEVICE_SIZES['pro-max'];
   renderWallpaper(
     canvas,
     {
@@ -77,7 +79,9 @@ async function loadBackgroundForId(id) {
   }
 }
 
-watch([() => props.state, () => props.rates, loadedBackgroundImage], draw, { deep: true });
+watch([() => props.state, () => props.rates, loadedBackgroundImage], draw, {
+  deep: true,
+});
 
 watch(
   () => props.state.backgroundId,
@@ -92,31 +96,38 @@ onMounted(draw);
 function downloadWallpaper() {
   const canvas = canvasEl.value;
   if (!canvas) return;
-  const dests = props.state.destinations.filter((c) => c !== props.state.base).join("-");
-  const name = `wallpaper-${props.state.base}-${dests || "rates"}.png`;
+  const dests = props.state.destinations
+    .filter((c) => c !== props.state.base)
+    .join('-');
+  const name = `wallpaper-${props.state.base}-${dests || 'rates'}.png`;
   canvas.toBlob((blob) => {
     if (!blob) {
-      emit("download-error");
+      emit('download-error');
       return;
     }
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
     a.download = name;
     document.body.append(a);
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }, "image/png");
+  }, 'image/png');
 }
 </script>
 
 <template>
   <div class="canvas-frame">
-    <canvas ref="canvasEl" class="preview-canvas" width="1290" height="2796"></canvas>
+    <canvas
+      ref="canvasEl"
+      class="preview-canvas"
+      width="1290"
+      height="2796"
+    ></canvas>
   </div>
   <button type="button" class="btn primary" @click="downloadWallpaper">
-    ⬇ {{ $t("preview.download") }}
+    ⬇ {{ $t('preview.download') }}
   </button>
-  <p class="save-hint">{{ $t("preview.saveHint") }}</p>
+  <p class="save-hint">{{ $t('preview.saveHint') }}</p>
 </template>

@@ -1,6 +1,6 @@
 ---
-name: "two-currency-increment-table"
-description: "Correct the product vision after Phase 0 so the app compares exactly one home and one travel currency via a configurable increment-table wallpaper, update all related planning and repo docs to match, and remove multi-destination cards mode from the vision."
+name: 'two-currency-increment-table'
+description: 'Correct the product vision after Phase 0 so the app compares exactly one home and one travel currency via a configurable increment-table wallpaper, update all related planning and repo docs to match, and remove multi-destination cards mode from the vision.'
 ---
 
 # Product direction: two-currency increment-table wallpaper

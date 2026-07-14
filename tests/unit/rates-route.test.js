@@ -6,7 +6,15 @@
 // async function without booting Nitro. No network access happens: $fetch is
 // mocked with a canned Frankfurter payload.
 
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 
 const getRouterParam = vi.fn();
 const $fetch = vi.fn();
@@ -18,8 +26,8 @@ const createError = vi.fn((input) =>
 // proxy is expected to drop.
 const FRANKFURTER_PAYLOAD = {
   amount: 1,
-  base: "USD",
-  date: "2026-07-13",
+  base: 'USD',
+  date: '2026-07-13',
   rates: { EUR: 0.92, JPY: 157.35 },
 };
 
@@ -29,11 +37,11 @@ beforeAll(async () => {
   // defineCachedEventHandler must be stubbed before the module is imported,
   // because the route calls it at module evaluation time. Unwrapping it to
   // the raw handler skips Nitro's caching layer.
-  vi.stubGlobal("defineCachedEventHandler", (eventHandler) => eventHandler);
-  vi.stubGlobal("getRouterParam", getRouterParam);
-  vi.stubGlobal("createError", createError);
-  vi.stubGlobal("$fetch", $fetch);
-  ({ default: handler } = await import("../../server/api/rates/[base].get.js"));
+  vi.stubGlobal('defineCachedEventHandler', (eventHandler) => eventHandler);
+  vi.stubGlobal('getRouterParam', getRouterParam);
+  vi.stubGlobal('createError', createError);
+  vi.stubGlobal('$fetch', $fetch);
+  ({ default: handler } = await import('../../server/api/rates/[base].get.js'));
 });
 
 afterAll(() => {
@@ -46,44 +54,44 @@ beforeEach(() => {
   createError.mockClear();
 });
 
-describe("rates route handler", () => {
-  it("uppercases the base parameter and proxies it to Frankfurter", async () => {
-    getRouterParam.mockReturnValue("usd");
+describe('rates route handler', () => {
+  it('uppercases the base parameter and proxies it to Frankfurter', async () => {
+    getRouterParam.mockReturnValue('usd');
     $fetch.mockResolvedValue(FRANKFURTER_PAYLOAD);
 
     await handler({});
 
     expect($fetch).toHaveBeenCalledTimes(1);
     expect($fetch).toHaveBeenCalledWith(
-      "https://api.frankfurter.dev/v1/latest?base=USD",
+      'https://api.frankfurter.dev/v1/latest?base=USD',
     );
   });
 
-  it("returns exactly { base, date, rates } and drops extra upstream fields", async () => {
-    getRouterParam.mockReturnValue("USD");
+  it('returns exactly { base, date, rates } and drops extra upstream fields', async () => {
+    getRouterParam.mockReturnValue('USD');
     $fetch.mockResolvedValue(FRANKFURTER_PAYLOAD);
 
     const result = await handler({});
 
     expect(result).toEqual({
-      base: "USD",
-      date: "2026-07-13",
+      base: 'USD',
+      date: '2026-07-13',
       rates: { EUR: 0.92, JPY: 157.35 },
     });
-    expect(result).not.toHaveProperty("amount");
+    expect(result).not.toHaveProperty('amount');
   });
 
-  it("rejects an unknown base currency with a 400 and never calls $fetch", async () => {
-    getRouterParam.mockReturnValue("xxx");
+  it('rejects an unknown base currency with a 400 and never calls $fetch', async () => {
+    getRouterParam.mockReturnValue('xxx');
 
     await expect(handler({})).rejects.toMatchObject({
       statusCode: 400,
-      statusMessage: "Unknown base currency: XXX",
+      statusMessage: 'Unknown base currency: XXX',
     });
     expect($fetch).not.toHaveBeenCalled();
   });
 
-  it("rejects a missing base parameter with a 400", async () => {
+  it('rejects a missing base parameter with a 400', async () => {
     getRouterParam.mockReturnValue(undefined);
 
     await expect(handler({})).rejects.toMatchObject({ statusCode: 400 });

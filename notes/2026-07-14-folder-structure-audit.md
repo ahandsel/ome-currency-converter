@@ -63,26 +63,26 @@ Sources:
 
 Fixed (tool-expected) paths:
 
-| Path | Tool | Notes |
-| ---- | ---- | ----- |
-| `AGENTS.md` | Cursor, Codex, Copilot, and others | Cross-tool root instruction file. |
-| `.claude/` | Claude Code | Settings, permissions, and Claude-local assets. |
-| `.claude/skills/` | Claude Code | Auto-discovered project skills. |
-| `.claude/commands/` | Claude Code | Auto-discovered slash commands. |
-| `.claude/agents/` | Claude Code | Project subagent definitions. |
-| `.claude/rules/` | Claude Code | Topic-scoped rules. |
-| `.agents/skills/` | Codex | Open-style repository skills path. |
-| `.cursor/rules/` | Cursor | Tool-specific rules (optional when `AGENTS.md` already covers shared rules). |
+| Path                | Tool                               | Notes                                                                        |
+| ------------------- | ---------------------------------- | ---------------------------------------------------------------------------- |
+| `AGENTS.md`         | Cursor, Codex, Copilot, and others | Cross-tool root instruction file.                                            |
+| `.claude/`          | Claude Code                        | Settings, permissions, and Claude-local assets.                              |
+| `.claude/skills/`   | Claude Code                        | Auto-discovered project skills.                                              |
+| `.claude/commands/` | Claude Code                        | Auto-discovered slash commands.                                              |
+| `.claude/agents/`   | Claude Code                        | Project subagent definitions.                                                |
+| `.claude/rules/`    | Claude Code                        | Topic-scoped rules.                                                          |
+| `.agents/skills/`   | Codex                              | Open-style repository skills path.                                           |
+| `.cursor/rules/`    | Cursor                             | Tool-specific rules (optional when `AGENTS.md` already covers shared rules). |
 
 Discretionary (convention only) paths:
 
-| Path | Role in this repo |
-| ---- | ----------------- |
-| `skills/` at the root | Portable skill source of truth; bridged into Claude via `.claude/skills` symlink. |
+| Path                                         | Role in this repo                                                                         |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `skills/` at the root                        | Portable skill source of truth; bridged into Claude via `.claude/skills` symlink.         |
 | `commands/`, `agents/`, `rules/` at the root | Intended AI folders that are currently near-empty and are not on Claude's discovery path. |
-| `prompts/` | Prompt library for humans and agents; no tool auto-loads this path. |
-| `memory/` + `MEMORY.md` | Versioned project memory by explicit repo choice. |
-| `notes/`, `tickets/`, `docs/`, `scripts/` | Process and documentation by human convention. |
+| `prompts/`                                   | Prompt library for humans and agents; no tool auto-loads this path.                       |
+| `memory/` + `MEMORY.md`                      | Versioned project memory by explicit repo choice.                                         |
+| `notes/`, `tickets/`, `docs/`, `scripts/`    | Process and documentation by human convention.                                            |
 
 
 ## Current root inventory
@@ -92,69 +92,69 @@ Classification key: keep, move, rename, merge, or remove.
 
 ### Product (Nuxt)
 
-| Entry | Classification | Rationale |
-| ----- | -------------- | --------- |
-| `app/` | keep | Nuxt 4 default source directory. Current subfolders (`assets/`, `components/`, `composables/`, `pages/`, `utils/`, `app.vue`) are idiomatic. |
-| `server/` | keep | Nitro server root. The `api/rates/[base].get.js` name is a framework convention; it is already listed in `.namelintignore`. |
-| `shared/` | keep | Correct place for Vue-and-Nitro-safe pure modules (`utils/currencies.js` today; `utils/ladder.js` planned). `#shared` alias is required and already used. |
-| `public/` | keep | Static assets served as-is. |
-| `nuxt.config.ts` | keep | Root config required by Nuxt. |
-| `vitest.config.mjs` | keep | Root Vitest config; `#shared` alias mirrors Nuxt. |
-| `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml` | keep | Package manager roots. `pnpm-workspace.yaml` here is used for pnpm security and build settings, not for a multi-package monorepo. |
+| Entry                                                   | Classification | Rationale                                                                                                                                                 |
+| ------------------------------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app/`                                                  | keep           | Nuxt 4 default source directory. Current subfolders (`assets/`, `components/`, `composables/`, `pages/`, `utils/`, `app.vue`) are idiomatic.              |
+| `server/`                                               | keep           | Nitro server root. The `api/rates/[base].get.js` name is a framework convention; it is already listed in `.namelintignore`.                               |
+| `shared/`                                               | keep           | Correct place for Vue-and-Nitro-safe pure modules (`utils/currencies.js` today; `utils/ladder.js` planned). `#shared` alias is required and already used. |
+| `public/`                                               | keep           | Static assets served as-is.                                                                                                                               |
+| `nuxt.config.ts`                                        | keep           | Root config required by Nuxt.                                                                                                                             |
+| `vitest.config.mjs`                                     | keep           | Root Vitest config; `#shared` alias mirrors Nuxt.                                                                                                         |
+| `package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml` | keep           | Package manager roots. `pnpm-workspace.yaml` here is used for pnpm security and build settings, not for a multi-package monorepo.                         |
 
 
 ### Locale and tests
 
-| Entry | Classification | Rationale |
-| ----- | -------------- | --------- |
+| Entry           | Classification    | Rationale                                                                                                                                                                                                                                                      |
+| --------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `localization/` | rename (proposed) | Works today via `restructureDir: "localization"` and `langDir: "."`. The module default is `i18n/locales/`. Renaming before Phase 4 reduces ongoing override cost. Keeping the name is also a valid choice if the maintainers prefer the clearer English word. |
-| `tests/` | keep | Nuxt accepts `tests/` as well as `test/`. Current `tests/unit/` matches the Node unit-test bucket. Future `@nuxt/test-utils` component tests should go in `tests/nuxt/` (not colocated by default), per the Nuxt testing guide. |
+| `tests/`        | keep              | Nuxt accepts `tests/` as well as `test/`. Current `tests/unit/` matches the Node unit-test bucket. Future `@nuxt/test-utils` component tests should go in `tests/nuxt/` (not colocated by default), per the Nuxt testing guide.                                |
 
 
 ### Documentation and process
 
-| Entry | Classification | Rationale |
-| ----- | -------------- | --------- |
-| `docs/` | keep | Product and writing docs; conventional. |
-| `notes/` | keep | Dated audits and proposals; naming rule `YYYY-MM-DD-<slug>.md` already documented. |
-| `tickets/` | keep | Work tickets with the `ticket/<n>` branch workflow. |
-| `scripts/` | keep | Helper scripts; matches `AGENTS.md` script guidance. |
-| `README.md`, `LICENSE` | keep | Standard package docs. |
+| Entry                  | Classification | Rationale                                                                          |
+| ---------------------- | -------------- | ---------------------------------------------------------------------------------- |
+| `docs/`                | keep           | Product and writing docs; conventional.                                            |
+| `notes/`               | keep           | Dated audits and proposals; naming rule `YYYY-MM-DD-<slug>.md` already documented. |
+| `tickets/`             | keep           | Work tickets with the `ticket/<n>` branch workflow.                                |
+| `scripts/`             | keep           | Helper scripts; matches `AGENTS.md` script guidance.                               |
+| `README.md`, `LICENSE` | keep           | Standard package docs.                                                             |
 
 
 ### AI scaffold
 
-| Entry | Classification | Rationale |
-| ----- | -------------- | --------- |
-| `AGENTS.md` | keep | Fixed cross-tool path. |
-| `.claude/` | keep | Fixed Claude Code path. Already holds `CLAUDE.md` (imports `AGENTS.md`), settings, and a `skills` symlink to `../skills`. |
-| `skills/` | keep (with optional bridge) | Discretionary root location that is the authored skill tree. Claude discovery works through the existing `.claude/skills` symlink. Codex discovery expects `.agents/skills`; a second symlink would close that gap without moving files. |
-| `MEMORY.md` + `memory/` | keep | Discretionary, but intentional and documented in feedback memory. Do not move to `~/.claude/projects/`. |
-| `prompts/` | keep | Discretionary prompt library; useful and not tool-bound. |
-| `commands/` | move | Contains `brainstorm.md`, but Claude auto-discovers `.claude/commands/`, not a root `commands/` folder. |
-| `agents/` | move or remove | Placeholder README only. Claude expects `.claude/agents/`. Empty root folder adds noise. |
-| `rules/` | move or remove | Placeholder README only. Claude expects `.claude/rules/` (Cursor expects `.cursor/rules/` for Cursor-only rules). Empty root folder adds noise. |
+| Entry                   | Classification              | Rationale                                                                                                                                                                                                                                |
+| ----------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AGENTS.md`             | keep                        | Fixed cross-tool path.                                                                                                                                                                                                                   |
+| `.claude/`              | keep                        | Fixed Claude Code path. Already holds `CLAUDE.md` (imports `AGENTS.md`), settings, and a `skills` symlink to `../skills`.                                                                                                                |
+| `skills/`               | keep (with optional bridge) | Discretionary root location that is the authored skill tree. Claude discovery works through the existing `.claude/skills` symlink. Codex discovery expects `.agents/skills`; a second symlink would close that gap without moving files. |
+| `MEMORY.md` + `memory/` | keep                        | Discretionary, but intentional and documented in feedback memory. Do not move to `~/.claude/projects/`.                                                                                                                                  |
+| `prompts/`              | keep                        | Discretionary prompt library; useful and not tool-bound.                                                                                                                                                                                 |
+| `commands/`             | move                        | Contains `brainstorm.md`, but Claude auto-discovers `.claude/commands/`, not a root `commands/` folder.                                                                                                                                  |
+| `agents/`               | move or remove              | Placeholder README only. Claude expects `.claude/agents/`. Empty root folder adds noise.                                                                                                                                                 |
+| `rules/`                | move or remove              | Placeholder README only. Claude expects `.claude/rules/` (Cursor expects `.cursor/rules/` for Cursor-only rules). Empty root folder adds noise.                                                                                          |
 
 
 ### Generated and local hygiene
 
-| Entry | Classification | Rationale |
-| ----- | -------------- | --------- |
-| `.nuxt/`, `.output/`, `node_modules/` | keep ignored | Correctly listed in `.gitignore`. |
-| `dist` symlink | remove (local only) | Already gitignored. The current symlink points at an absolute machine path under `.output/public`. Prefer opening `.output/public` or using `pnpm preview` instead of a hand-made `dist` link. |
-| `.DS_Store` | keep ignored | Already ignored. |
-| `.env.repo-audit` and other `.env.*` | keep ignored | Matched by `.env.*` in `.gitignore`. |
-| `localization/temp.md` | keep ignored | Matched by `**/temp.md`; delete locally when convenient. |
+| Entry                                 | Classification      | Rationale                                                                                                                                                                                      |
+| ------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.nuxt/`, `.output/`, `node_modules/` | keep ignored        | Correctly listed in `.gitignore`.                                                                                                                                                              |
+| `dist` symlink                        | remove (local only) | Already gitignored. The current symlink points at an absolute machine path under `.output/public`. Prefer opening `.output/public` or using `pnpm preview` instead of a hand-made `dist` link. |
+| `.DS_Store`                           | keep ignored        | Already ignored.                                                                                                                                                                               |
+| `.env.repo-audit` and other `.env.*`  | keep ignored        | Matched by `.env.*` in `.gitignore`.                                                                                                                                                           |
+| `localization/temp.md`                | keep ignored        | Matched by `**/temp.md`; delete locally when convenient.                                                                                                                                       |
 
 
 ### Naming rule status
 
-| Path | Status |
-| ---- | ------ |
-| `server/api/rates/[base].get.js` | Covered by `.namelintignore` with a comment. Correct use of the escape hatch described in [notes/2026-07-14-phase-0-status.md](./2026-07-14-phase-0-status.md). |
-| `AGENTS.md`, `MEMORY.md`, `LICENSE`, and similar | Allowed by the name linter's default ignore list for standard repo docs. |
-| `notes/background-curation-proposal.md` | Documented exception in [notes/README.md](./README.md) (name fixed by the backgrounds workflow). |
-| App and shared files using `lowercase-with-dashes` | Match `AGENTS.md`. |
+| Path                                               | Status                                                                                                                                                          |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `server/api/rates/[base].get.js`                   | Covered by `.namelintignore` with a comment. Correct use of the escape hatch described in [notes/2026-07-14-phase-0-status.md](./2026-07-14-phase-0-status.md). |
+| `AGENTS.md`, `MEMORY.md`, `LICENSE`, and similar   | Allowed by the name linter's default ignore list for standard repo docs.                                                                                        |
+| `notes/background-curation-proposal.md`            | Documented exception in [notes/README.md](./README.md) (name fixed by the backgrounds workflow).                                                                |
+| App and shared files using `lowercase-with-dashes` | Match `AGENTS.md`.                                                                                                                                              |
 
 
 ## Tension points

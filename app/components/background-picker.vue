@@ -1,7 +1,7 @@
 <script setup>
 // Photo background picker: sets state.backgroundId to a curated photo id or null.
 
-import { BACKGROUNDS, getBackground } from "~/utils/backgrounds";
+import { BACKGROUNDS, getBackground } from '~/utils/backgrounds';
 
 const props = defineProps({
   state: { type: Object, required: true },
@@ -22,10 +22,14 @@ function selectBackground(id) {
 
 <template>
   <div class="field">
-    <span class="field-label">{{ $t("controls.background") }}</span>
-    <p class="hint">{{ $t("controls.backgroundHint") }}</p>
+    <span class="field-label">{{ $t('controls.background') }}</span>
+    <p class="hint">{{ $t('controls.backgroundHint') }}</p>
 
-    <div class="background-grid" role="group" :aria-label="$t('controls.background')">
+    <div
+      class="background-grid"
+      role="group"
+      :aria-label="$t('controls.background')"
+    >
       <button
         type="button"
         class="background-none"
@@ -33,7 +37,7 @@ function selectBackground(id) {
         :aria-pressed="state.backgroundId === null"
         @click="selectNone"
       >
-        {{ $t("controls.backgroundNone") }}
+        {{ $t('controls.backgroundNone') }}
       </button>
 
       <button
@@ -54,9 +58,12 @@ function selectBackground(id) {
     <p v-if="selectedBackground" class="background-credit">
       <i18n-t keypath="preview.photoCredit" scope="global">
         <template #name>
-          <a :href="selectedBackground.profileUrl" target="_blank" rel="noopener">{{
-            selectedBackground.photographer
-          }}</a>
+          <a
+            :href="selectedBackground.profileUrl"
+            target="_blank"
+            rel="noopener"
+            >{{ selectedBackground.photographer }}</a
+          >
         </template>
       </i18n-t>
     </p>

@@ -7,5 +7,5 @@ minimumReleaseAge: 4320 # Three-day buffer for security updates.
 # esbuild fetches its platform binary during install (Vite / Nuxt need it).
 # @parcel/watcher builds a native file-watcher used by Nuxt's watcher.
 allowBuilds:
-  "@parcel/watcher": true
+  '@parcel/watcher': true
   esbuild: true

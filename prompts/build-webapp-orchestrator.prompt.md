@@ -89,17 +89,17 @@ Subagents do not share your context or conversation history. Every brief must be
 
 **Requirements**:
 
-* <specific, testable requirements copied or distilled from the planning docs>
+- <specific, testable requirements copied or distilled from the planning docs>
 
 **Repository rules that apply**:
 
-* Plain JavaScript, `lowercase-with-dashes` file names, and `pnpm` only.
-* <subtask-specific rules, for example renderer purity or the docs writing style>
+- Plain JavaScript, `lowercase-with-dashes` file names, and `pnpm` only.
+- <subtask-specific rules, for example renderer purity or the docs writing style>
 
 **Definition of done**:
 
-* <observable outcomes>
-* <verification commands, for example `pnpm lint` and `pnpm test-unit`>
+- <observable outcomes>
+- <verification commands, for example `pnpm lint` and `pnpm test-unit`>
 
 **Return**: what changed, decisions taken, and anything left open. Do not commit.
 ```

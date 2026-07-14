@@ -102,16 +102,16 @@ State lives in `useWallpaperState`, persisted with `useLocalStorage` under `STOR
 ```js
 // app/composables/use-wallpaper-state.js
 export const defaultState = {
-  home: "USD",             // currency code, or null when cleared
-  travel: "JPY",           // currency code, or null when cleared
-  step: 5,                 // ladder step (integer, min 1)
-  rowCount: 5,             // number of ladder rows (3 to 10)
-  includeOne: true,        // prepend a 1-unit row when not already present
-  theme: "midnight",
-  device: "pro-max",
-  title: "Travel rates",
-  backgroundId: null,      // id into backgrounds.js, or null for gradient
-  position: "center",      // "center" | "left"
+  home: 'USD', // currency code, or null when cleared
+  travel: 'JPY', // currency code, or null when cleared
+  step: 5, // ladder step (integer, min 1)
+  rowCount: 5, // number of ladder rows (3 to 10)
+  includeOne: true, // prepend a 1-unit row when not already present
+  theme: 'midnight',
+  device: 'pro-max',
+  title: 'Travel rates',
+  backgroundId: null, // id into backgrounds.js, or null for gradient
+  position: 'center', // "center" | "left"
 };
 ```
 
@@ -126,15 +126,15 @@ The interface language is not part of this state; `@nuxtjs/i18n` persists the la
 
 `currency-controls.vue` presents one chip grid (currency wall). There is no separate Home dropdown. Helpers in the composable or component enforce:
 
-| Current state | User action                                        | Result                                   |
-| ------------- | -------------------------------------------------- | ---------------------------------------- |
-| Both empty    | Tap code A                                         | `home = A`                               |
-| Home only     | Tap code B (not home)                              | `travel = B`                             |
-| Travel only   | Tap code A (not travel)                            | `home = A`                               |
-| Both set      | Tap home again                                     | `home = null` (travel unchanged)         |
-| Both set      | Tap travel again                                   | `travel = null` (home unchanged)         |
-| Both set      | Tap code C (neither)                               | former travel becomes home; `travel = C` |
-| One slot set  | Tap the same code that fills that slot             | clear that slot                          |
+| Current state | User action                            | Result                                   |
+| ------------- | -------------------------------------- | ---------------------------------------- |
+| Both empty    | Tap code A                             | `home = A`                               |
+| Home only     | Tap code B (not home)                  | `travel = B`                             |
+| Travel only   | Tap code A (not travel)                | `home = A`                               |
+| Both set      | Tap home again                         | `home = null` (travel unchanged)         |
+| Both set      | Tap travel again                       | `travel = null` (home unchanged)         |
+| Both set      | Tap code C (neither)                   | former travel becomes home; `travel = C` |
+| One slot set  | Tap the same code that fills that slot | clear that slot                          |
 
 Selected chips show a home marker or travel marker. The same code cannot occupy both slots.
 
@@ -260,20 +260,20 @@ Minimal configuration (already in place from Phase 0):
 
 ```ts
 export default defineNuxtConfig({
-  modules: ["@nuxtjs/i18n", "@vueuse/nuxt"],
-  css: ["~/assets/css/main.css"],
+  modules: ['@nuxtjs/i18n', '@vueuse/nuxt'],
+  css: ['~/assets/css/main.css'],
   i18n: {
-    strategy: "no_prefix",
-    defaultLocale: "en",
+    strategy: 'no_prefix',
+    defaultLocale: 'en',
     locales: [
-      { code: "en", language: "en-US", file: "en.json" },
-      { code: "ja", language: "ja-JP", file: "ja.json" },
+      { code: 'en', language: 'en-US', file: 'en.json' },
+      { code: 'ja', language: 'ja-JP', file: 'ja.json' },
     ],
     detectBrowserLanguage: { useCookie: true },
   },
   routeRules: {
-    "/": { prerender: true },
-    "/api/rates/**": { swr: 3600 },
+    '/': { prerender: true },
+    '/api/rates/**': { swr: 3600 },
   },
 });
 ```

@@ -6,9 +6,7 @@
   // language - current active spelling language
   "language": "en",
   // words - list of words to be always considered correct
-  "words": [
-    "𓅿𖤣𖥧"
-  ],
+  "words": ["𓅿𖤣𖥧"],
   // flagWords - list of words to be always considered incorrect
   // "flagWords": [""],
   // ignorePaths - list of glob patterns to ignore file paths
@@ -16,8 +14,7 @@
   // allowCompoundWords - (default: false) allow compound words (e.g., arraylength)
   "allowCompoundWords": false,
   // ignoreRegExpList - list of regular expressions to ignore
-  "ignoreRegExpList": [
-  ],
+  "ignoreRegExpList": [],
   "dictionaries": ["words-to-avoid"],
   "dictionaryDefinitions": [
     {

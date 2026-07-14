@@ -35,7 +35,5 @@
   "markdownlint.configFile": ".markdownlint-cli2.jsonc",
   "markdownlint.run": "onSave",
   "mdx.validate.validateMarkdownFileLinkFragments": "hint",
-  "cSpell.words": [
-    "Qiita"
-  ]
+  "cSpell.words": ["Qiita"]
 }

@@ -37,20 +37,20 @@ Notes on the fields:
 
 The initial set targets about 12 calm, low-detail, phone-friendly photos so a currency table stays legible on top. Sourced from [Unsplash phone wallpaper search](https://unsplash.com/s/photos/phone-wallpaper). Each slot must be filled with a real Unsplash photo before shipping; the curation workflow section below explains how.
 
-| Slot | id             | Theme / mood          | Suggested text |
-| ---- | -------------- | --------------------- | -------------- |
-| 1    | dusk-gradient  | Dusk sky gradient     | light          |
-| 2    | ocean-teal     | Calm teal ocean       | light          |
-| 3    | mountain-fog   | Foggy mountains       | light          |
-| 4    | desert-dune    | Warm desert dunes     | dark           |
-| 5    | forest-dark    | Deep green forest     | light          |
-| 6    | city-night     | City lights at night  | light          |
-| 7    | sakura-soft    | Soft pink blossoms    | dark           |
-| 8    | snow-minimal   | Minimal snow field    | dark           |
-| 9    | sunset-warm    | Warm orange sunset    | light          |
-| 10   | marble-light   | Light marble texture  | dark           |
-| 11   | night-sky      | Stars and night sky   | light          |
-| 12   | paper-neutral  | Neutral paper texture | dark           |
+| Slot | id            | Theme / mood          | Suggested text |
+| ---- | ------------- | --------------------- | -------------- |
+| 1    | dusk-gradient | Dusk sky gradient     | light          |
+| 2    | ocean-teal    | Calm teal ocean       | light          |
+| 3    | mountain-fog  | Foggy mountains       | light          |
+| 4    | desert-dune   | Warm desert dunes     | dark           |
+| 5    | forest-dark   | Deep green forest     | light          |
+| 6    | city-night    | City lights at night  | light          |
+| 7    | sakura-soft   | Soft pink blossoms    | dark           |
+| 8    | snow-minimal  | Minimal snow field    | dark           |
+| 9    | sunset-warm   | Warm orange sunset    | light          |
+| 10   | marble-light  | Light marble texture  | dark           |
+| 11   | night-sky     | Stars and night sky   | light          |
+| 12   | paper-neutral | Neutral paper texture | dark           |
 
 The slots above describe the intended look. Concrete Unsplash photos for all 12 slots are approved in [notes/background-curation-proposal.md](../notes/background-curation-proposal.md) and wired into `app/utils/backgrounds.js`.
 

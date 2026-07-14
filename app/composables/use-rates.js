@@ -18,9 +18,9 @@ let frankfurterDirect = false;
 function isRatesPayload(value) {
   return Boolean(
     value &&
-      typeof value === 'object' &&
-      value.rates &&
-      typeof value.rates === 'object',
+    typeof value === 'object' &&
+    value.rates &&
+    typeof value.rates === 'object',
   );
 }
 
