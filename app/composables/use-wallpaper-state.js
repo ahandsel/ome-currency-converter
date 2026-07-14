@@ -2,6 +2,8 @@
 // Stored in localStorage under the same key as the prototype, so a returning
 // user's saved setup carries over with cards-era fields migrated to home/travel.
 
+import { defaultStartAmount } from '#shared/utils/ladder';
+
 export const STORAGE_KEY = 'ome-currency-converter:v1';
 
 export const defaultState = {
@@ -9,7 +11,8 @@ export const defaultState = {
   travel: 'JPY', // currency code, or null when cleared
   step: 5,
   rowCount: 5,
-  includeOne: true,
+  startAmount: 1, // first home amount on the ladder (JPY default is 100)
+  includeFooter: true,
   theme: 'midnight',
   device: 'pro-max',
   title: 'Travel rates',
@@ -22,7 +25,8 @@ const NEW_STATE_KEYS = [
   'travel',
   'step',
   'rowCount',
-  'includeOne',
+  'startAmount',
+  'includeFooter',
   'theme',
   'device',
   'title',
@@ -37,6 +41,8 @@ const CARDS_ERA_KEYS = [
   'mode',
   'travelCurrency',
 ];
+
+const LEGACY_KEYS = [...CARDS_ERA_KEYS, 'includeOne'];
 
 function hasCardsEraKeys(raw) {
   return CARDS_ERA_KEYS.some((key) => key in raw);
@@ -116,7 +122,8 @@ function ensureDistinctPair(home, travel) {
 /**
  * Accepts a plain object (merged defaults plus any persisted keys) and returns
  * only the Phase 2 state shape. Maps cards-era `base`, `travelCurrency`, and
- * `destinations` when those keys are still present.
+ * `destinations` when those keys are still present. Maps legacy `includeOne`
+ * to `startAmount` when `startAmount` was not saved.
  */
 export function migrateWallpaperState(raw) {
   if (!raw || typeof raw !== 'object') {
@@ -125,25 +132,44 @@ export function migrateWallpaperState(raw) {
 
   const result = pickNewShapeFields(raw);
 
-  if (!hasCardsEraKeys(raw)) {
-    result.travel = ensureDistinctPair(result.home, result.travel);
-    return result;
+  if (hasCardsEraKeys(raw)) {
+    if ('base' in raw && raw.base) {
+      result.home = isExplicitNewHomeValue(raw) ? raw.home : raw.base;
+    } else if ('home' in raw) {
+      result.home = raw.home;
+    }
+
+    result.travel = resolveTravelFromCardsEra(raw, result.home);
   }
 
-  if ('base' in raw && raw.base) {
-    result.home = isExplicitNewHomeValue(raw) ? raw.home : raw.base;
-  } else if ('home' in raw) {
-    result.home = raw.home;
-  }
-
-  result.travel = resolveTravelFromCardsEra(raw, result.home);
   result.travel = ensureDistinctPair(result.home, result.travel);
-
+  result.startAmount = resolveStartAmount(raw, result);
   return result;
 }
 
+function resolveStartAmount(raw, result) {
+  if ('startAmount' in raw && raw.startAmount !== undefined) {
+    const value = Math.floor(Number(raw.startAmount));
+    return Math.max(1, Number.isFinite(value) ? value : 1);
+  }
+
+  if ('includeOne' in raw) {
+    if (raw.includeOne) {
+      return defaultStartAmount(result.home);
+    }
+    const step = Math.floor(Number(result.step));
+    return Math.max(1, Number.isFinite(step) ? step : 1);
+  }
+
+  const value = Math.floor(Number(result.startAmount));
+  return Math.max(
+    1,
+    Number.isFinite(value) ? value : defaultStartAmount(result.home),
+  );
+}
+
 function stateNeedsCleanup(value) {
-  if (hasCardsEraKeys(value)) {
+  if (LEGACY_KEYS.some((key) => key in value)) {
     return true;
   }
   return Object.keys(value).some((key) => !NEW_STATE_KEYS.includes(key));

@@ -108,6 +108,7 @@ function draw() {
     title,
     theme: props.state.theme,
     position: props.state.position,
+    includeFooter: props.state.includeFooter !== false,
     locale: intlLocale.value,
     labels: wallpaperLabels(null, photographer),
     ...bgFields,
@@ -122,7 +123,7 @@ function draw() {
   const ladder = buildLadder({
     step: props.state.step,
     rowCount: props.state.rowCount,
-    includeOne: props.state.includeOne,
+    startAmount: props.state.startAmount,
   });
 
   const date = props.rates.date;

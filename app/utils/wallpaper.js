@@ -77,6 +77,7 @@ const DEFAULT_LABELS = {
   footerRates: 'rates: ECB / frankfurter.dev',
   photoCreditPrefix: 'Photo: ',
   photoCreditSuffix: ' / Unsplash',
+  defaultTitle: 'Travel rates',
 };
 
 function isUsableBackgroundImage(img) {
@@ -219,12 +220,35 @@ function drawGradientBackground(ctx, theme, w, h) {
   ctx.fillRect(0, 0, w, h);
 }
 
-function drawPhotoAttribution(ctx, photoCredit, w, h, s, position, alignX) {
-  ctx.textAlign = position === 'left' ? 'left' : 'center';
+function drawBottomCenterCredits(ctx, opts) {
+  const { w, h, s, muted, date, labels, locale, photographer } = opts;
+  const centerX = w / 2;
+  const lineGap = 34 * s;
+  let y = h - 28 * s;
+
+  ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = 'rgba(255,255,255,0.45)';
-  ctx.font = `400 ${22 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-  ctx.fillText(photoCredit, alignX, h - 28 * s);
+
+  if (photographer) {
+    const photoCredit =
+      labels.photoCredit ??
+      `${DEFAULT_LABELS.photoCreditPrefix}${photographer}${DEFAULT_LABELS.photoCreditSuffix}`;
+    ctx.fillStyle = 'rgba(255,255,255,0.45)';
+    ctx.font = `400 ${22 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
+    ctx.fillText(photoCredit, centerX, y);
+    y -= lineGap;
+  }
+
+  const when = date
+    ? (labels.footerUpdated ??
+      `${DEFAULT_LABELS.footerUpdatedPrefix}${formatWallpaperDate(date, locale)}`)
+    : (labels.footerUpdated ?? '');
+  if (!when) return;
+
+  const rates = labels.footerRates ?? DEFAULT_LABELS.footerRates;
+  ctx.fillStyle = muted;
+  ctx.font = `500 ${26 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
+  ctx.fillText(`${when}  ·  ${rates}`, centerX, y);
 }
 
 function formatCompactThousands(value) {
@@ -266,12 +290,10 @@ function renderIncrementTable(ctx, o) {
   const rowCount = ladder.length;
   const radius = 28 * s;
   const headerH = 72 * s;
-  const minRowH = 56 * s;
   const maxRowH = 108 * s;
-  const rowH = Math.max(
-    minRowH,
-    Math.min(maxRowH, (maxH - headerH) / rowCount),
-  );
+  // Fit within maxH so denser ladders (up to LADDER_MAX_ROWS) stay on canvas.
+  const fitted = (maxH - headerH) / Math.max(1, rowCount);
+  const rowH = Math.min(maxRowH, fitted);
   const panelH = headerH + rowH * rowCount;
   const colMid = x + w / 2;
   const amountSize = Math.min(56 * s, rowH * 0.42);
@@ -363,6 +385,7 @@ function renderIncrementTable(ctx, o) {
 //   suggestedText: "light" | "dark" | undefined,
 //   dominantColor: string | undefined,
 //   position: "center" | "left",
+//   includeFooter: boolean,
 //   locale: "en-US" | "ja-JP",
 //   labels: {
 //     footerUpdated: string | null,
@@ -380,6 +403,7 @@ export function renderWallpaper(canvas, data, size) {
   const locale = data.locale || 'en-US';
   const labels = data.labels || {};
   const position = normalizePosition(data.position);
+  const includeFooter = data.includeFooter !== false;
   const margin = 96 * s;
   const theme = THEMES[data.theme] || THEMES.midnight;
   const hasPhoto = isUsableBackgroundImage(data.background);
@@ -398,86 +422,99 @@ export function renderWallpaper(canvas, data, size) {
     drawGradientBackground(ctx, theme, w, h);
   }
 
-  if (hasPhoto && data.attribution?.photographer) {
-    const photographer = data.attribution.photographer;
-    const photoCredit =
-      labels.photoCredit ??
-      `${DEFAULT_LABELS.photoCreditPrefix}${photographer}${DEFAULT_LABELS.photoCreditSuffix}`;
-    const attributionX = position === 'left' ? margin : w / 2;
-    drawPhotoAttribution(ctx, photoCredit, w, h, s, position, attributionX);
-  }
-
-  if (!isCompleteRenderData(data)) return;
-
-  let fg;
-  let muted;
-  let panelBg;
-  let panelLine;
-  let zebraBg;
-  let headerBg;
+  let footerMuted;
   if (hasPhoto) {
-    // Always light text over a dark panel. Bright photos (suggestedText
-    // "dark") get a more opaque panel instead of dark-on-light table colors.
-    const strongLegibility = data.suggestedText === 'dark';
-    fg = '#ffffff';
-    muted = strongLegibility
-      ? 'rgba(255,255,255,0.70)'
-      : 'rgba(255,255,255,0.62)';
-    panelBg = strongLegibility ? 'rgba(0,0,0,0.78)' : 'rgba(0,0,0,0.64)';
-    panelLine = 'rgba(255,255,255,0.14)';
-    zebraBg = 'rgba(255,255,255,0.05)';
-    headerBg = 'rgba(255,255,255,0.08)';
+    footerMuted =
+      data.suggestedText === 'dark'
+        ? 'rgba(255,255,255,0.70)'
+        : 'rgba(255,255,255,0.62)';
   } else {
-    fg = theme.dark ? '#ffffff' : '#0f172a';
-    muted = theme.dark ? 'rgba(255,255,255,0.62)' : 'rgba(15,23,42,0.55)';
-    panelBg = theme.dark ? 'rgba(0,0,0,0.50)' : 'rgba(255,255,255,0.78)';
-    panelLine = theme.dark ? 'rgba(255,255,255,0.14)' : 'rgba(15,23,42,0.10)';
-    zebraBg = theme.dark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.04)';
-    headerBg = theme.dark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.06)';
+    footerMuted = theme.dark ? 'rgba(255,255,255,0.62)' : 'rgba(15,23,42,0.55)';
   }
 
-  // Content lives in the lower ~70% so the lock-screen clock/date (top ~26%)
-  // stays clear.
-  const contentTop = h * 0.3;
-  const contentBottom = h * 0.93;
-  const panelW =
-    position === 'left' ? w * LEFT_PANEL_WIDTH_FRACTION : w - margin * 2;
-  const panelX = margin;
-  const footerReserve = 56 * s;
-  const maxPanelH = contentBottom - contentTop - footerReserve;
+  if (isCompleteRenderData(data)) {
+    let fg;
+    let muted;
+    let panelBg;
+    let panelLine;
+    let zebraBg;
+    let headerBg;
+    if (hasPhoto) {
+      // Always light text over a dark panel. Bright photos (suggestedText
+      // "dark") get a more opaque panel instead of dark-on-light table colors.
+      const strongLegibility = data.suggestedText === 'dark';
+      fg = '#ffffff';
+      muted = strongLegibility
+        ? 'rgba(255,255,255,0.70)'
+        : 'rgba(255,255,255,0.62)';
+      panelBg = strongLegibility ? 'rgba(0,0,0,0.78)' : 'rgba(0,0,0,0.64)';
+      panelLine = 'rgba(255,255,255,0.14)';
+      zebraBg = 'rgba(255,255,255,0.05)';
+      headerBg = 'rgba(255,255,255,0.08)';
+    } else {
+      fg = theme.dark ? '#ffffff' : '#0f172a';
+      muted = theme.dark ? 'rgba(255,255,255,0.62)' : 'rgba(15,23,42,0.55)';
+      panelBg = theme.dark ? 'rgba(0,0,0,0.50)' : 'rgba(255,255,255,0.78)';
+      panelLine = theme.dark ? 'rgba(255,255,255,0.14)' : 'rgba(15,23,42,0.10)';
+      zebraBg = theme.dark ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.04)';
+      headerBg = theme.dark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.06)';
+    }
 
-  ctx.textBaseline = 'alphabetic';
+    // Content lives in the lower ~70% so the lock-screen clock/date (top ~26%)
+    // stays clear. Bottom strip holds optional center footer credits.
+    const contentTop = h * 0.3;
+    const contentBottom = h * 0.93;
+    const panelW =
+      position === 'left' ? w * LEFT_PANEL_WIDTH_FRACTION : w - margin * 2;
+    const panelX = margin;
+    const titleText = String(data.title || DEFAULT_LABELS.defaultTitle).trim();
+    const titleGap = titleText ? 56 * s : 0;
+    const tableTop = contentTop + titleGap;
+    const maxPanelH = contentBottom - tableTop;
 
-  const { panelH } = renderIncrementTable(ctx, {
-    x: panelX,
-    y: contentTop,
-    w: panelW,
-    maxH: maxPanelH,
+    ctx.textBaseline = 'alphabetic';
+
+    if (titleText) {
+      ctx.textAlign = position === 'left' ? 'left' : 'center';
+      ctx.fillStyle = muted;
+      // Include emoji-capable fallbacks so custom titles with emoji paint correctly.
+      ctx.font = `600 ${34 * s}px -apple-system, "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Segoe UI", system-ui, sans-serif`;
+      const titleX = position === 'left' ? panelX : w / 2;
+      ctx.fillText(titleText, titleX, contentTop);
+    }
+
+    renderIncrementTable(ctx, {
+      x: panelX,
+      y: tableTop,
+      w: panelW,
+      maxH: maxPanelH,
+      s,
+      home: data.home,
+      travel: data.travel,
+      ladder: data.ladder,
+      rate: data.rate,
+      fg,
+      panelBg,
+      panelLine,
+      zebraBg,
+      headerBg,
+      locale,
+    });
+
+    // Prefer the table muted so footer chrome matches the panel.
+    footerMuted = muted;
+  }
+
+  if (!includeFooter) return;
+
+  drawBottomCenterCredits(ctx, {
+    w,
+    h,
     s,
-    home: data.home,
-    travel: data.travel,
-    ladder: data.ladder,
-    rate: data.rate,
-    fg,
-    panelBg,
-    panelLine,
-    zebraBg,
-    headerBg,
+    muted: footerMuted,
+    date: data.date,
+    labels,
     locale,
+    photographer: hasPhoto ? data.attribution?.photographer : null,
   });
-
-  ctx.textAlign = position === 'left' ? 'left' : 'center';
-  ctx.fillStyle = muted;
-  ctx.font = `500 ${26 * s}px -apple-system, "Segoe UI", system-ui, sans-serif`;
-  const when = data.date
-    ? (labels.footerUpdated ??
-      `${DEFAULT_LABELS.footerUpdatedPrefix}${formatWallpaperDate(data.date, locale)}`)
-    : (labels.footerUpdated ?? '');
-  const rates = labels.footerRates ?? DEFAULT_LABELS.footerRates;
-  const footerX = position === 'left' ? panelX : w / 2;
-  ctx.fillText(
-    `${when}  ·  ${rates}`,
-    footerX,
-    contentTop + panelH + footerReserve,
-  );
 }

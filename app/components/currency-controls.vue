@@ -1,5 +1,5 @@
 <script setup>
-// Currency wall (home/travel chips) plus ladder step, row count, and include-one.
+// Currency wall (home/travel chips) plus ladder start, step, and row count.
 // Mutates the shared wallpaper state object passed down from the page.
 
 import {
@@ -8,6 +8,11 @@ import {
   currencyMeta,
 } from '#shared/utils/currencies';
 import { applyCurrencyTap } from '#shared/utils/currency-selection';
+import {
+  defaultStartAmount,
+  LADDER_MAX_ROWS,
+  LADDER_MIN_ROWS,
+} from '#shared/utils/ladder';
 
 const props = defineProps({
   state: { type: Object, required: true },
@@ -48,12 +53,23 @@ function chipAriaLabel(code) {
 }
 
 function onChipClick(code) {
+  const previousHome = props.state.home;
+  const previousDefault = defaultStartAmount(previousHome);
   const next = applyCurrencyTap(
     { home: props.state.home, travel: props.state.travel },
     code,
   );
   props.state.home = next.home;
   props.state.travel = next.travel;
+
+  // Refresh the start amount when home changes and the user is still on the
+  // previous currency default (1 for dollars, 100 for yen).
+  if (
+    next.home !== previousHome &&
+    props.state.startAmount === previousDefault
+  ) {
+    props.state.startAmount = defaultStartAmount(next.home);
+  }
 }
 
 function clampStep() {
@@ -61,11 +77,16 @@ function clampStep() {
   props.state.step = Math.max(1, Number.isFinite(value) ? value : 1);
 }
 
+function clampStartAmount() {
+  const value = Math.floor(Number(props.state.startAmount));
+  props.state.startAmount = Math.max(1, Number.isFinite(value) ? value : 1);
+}
+
 function clampRowCount() {
   const value = Math.floor(Number(props.state.rowCount));
   props.state.rowCount = Math.min(
-    10,
-    Math.max(3, Number.isFinite(value) ? value : 3),
+    LADDER_MAX_ROWS,
+    Math.max(LADDER_MIN_ROWS, Number.isFinite(value) ? value : LADDER_MIN_ROWS),
   );
 }
 </script>
@@ -91,17 +112,39 @@ function clampRowCount() {
       >
         <span class="flag">{{ currencyMeta(code).flag }}</span>
         <span>{{ code }}</span>
-        <span v-if="state.home === code" class="chip-marker">{{
-          $t('controls.homeMarker')
-        }}</span>
-        <span v-else-if="state.travel === code" class="chip-marker">{{
-          $t('controls.travelMarker')
-        }}</span>
+        <Icon
+          v-if="state.home === code"
+          class="chip-marker"
+          name="material-symbols:home"
+          size="1.1em"
+          aria-hidden="true"
+        />
+        <Icon
+          v-else-if="state.travel === code"
+          class="chip-marker"
+          name="material-symbols:rocket-launch"
+          size="1.1em"
+          aria-hidden="true"
+        />
       </button>
     </div>
   </div>
 
   <div class="field-row">
+    <div class="field">
+      <label for="start-amount">{{ $t('controls.startAmount') }}</label>
+      <input
+        id="start-amount"
+        v-model.number="state.startAmount"
+        type="number"
+        min="1"
+        step="1"
+        inputmode="numeric"
+        @change="clampStartAmount"
+        @blur="clampStartAmount"
+      />
+      <p class="hint">{{ $t('controls.startAmountHint') }}</p>
+    </div>
     <div class="field">
       <label for="step">{{ $t('controls.step') }}</label>
       <input
@@ -116,39 +159,41 @@ function clampRowCount() {
       />
       <p class="hint">{{ $t('controls.stepHint') }}</p>
     </div>
-    <div class="field">
-      <label for="row-count">{{ $t('controls.rowCount') }}</label>
-      <input
-        id="row-count"
-        v-model.number="state.rowCount"
-        type="number"
-        min="3"
-        max="10"
-        step="1"
-        inputmode="numeric"
-        @change="clampRowCount"
-        @blur="clampRowCount"
-      />
-      <p class="hint">{{ $t('controls.rowCountHint') }}</p>
-    </div>
   </div>
 
   <div class="field">
-    <label class="checkbox-field" for="include-one">
-      <input id="include-one" v-model="state.includeOne" type="checkbox" />
-      <span>{{ $t('controls.includeOne') }}</span>
+    <label for="row-count">{{ $t('controls.rowCount') }}</label>
+    <input
+      id="row-count"
+      v-model.number="state.rowCount"
+      type="number"
+      :min="LADDER_MIN_ROWS"
+      :max="LADDER_MAX_ROWS"
+      step="1"
+      inputmode="numeric"
+      @change="clampRowCount"
+      @blur="clampRowCount"
+    />
+    <p class="hint">{{ $t('controls.rowCountHint') }}</p>
+  </div>
+
+  <div class="field">
+    <label class="checkbox-field" for="include-footer">
+      <input
+        id="include-footer"
+        v-model="state.includeFooter"
+        type="checkbox"
+      />
+      <span>{{ $t('controls.includeFooter') }}</span>
     </label>
-    <p class="hint">{{ $t('controls.includeOneHint') }}</p>
+    <p class="hint">{{ $t('controls.includeFooterHint') }}</p>
   </div>
 </template>
 
 <style scoped>
 .chip-marker {
   margin-left: auto;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  flex-shrink: 0;
 }
 
 .checkbox-field {
