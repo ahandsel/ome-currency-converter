@@ -3,17 +3,17 @@
 
 ## Guiding principle
 
-Rebuild the prototype on [Nuxt](https://nuxt.com/), the full-stack Vue framework, while keeping the product unchanged.
-The wallpaper is still painted on a `<canvas>` at full device resolution and exported to PNG.
-The pure renderer and the data logic carry over almost verbatim; Nuxt replaces the hand-wired DOM code with components, composables, and a server-backed data layer.
-The three product pillars stay the same: photo backgrounds, increment-table mode, and table positioning.
+Rebuild and evolve the app on [Nuxt](https://nuxt.com/), the full-stack Vue framework, around one product: a two-currency increment-table wallpaper.
+The wallpaper is painted on a `<canvas>` at full device resolution and exported to PNG.
+Phase 0 migrated the old Vite prototype (which drew multi-destination cards) into Nuxt. That cards UI is obsolete product direction; later phases replace it with the increment-table layout and the currency-wall selection model defined in [product-spec.md](./product-spec.md).
+The product pillars after Phase 0 are: photo backgrounds, the increment-table wallpaper (the only layout), and table positioning.
 
 Target Nuxt 4 (v4.4.x is the current stable at the time of writing; use the latest stable Nuxt 4 release at implementation time). The repo already requires Node >= 24 and pnpm, which satisfies Nuxt's requirements.
 
 
 ## Why Nuxt
 
-* Components and composables replace the manual `getElementById` wiring in `src/scripts/app.js`, so each control (mode toggle, background picker, ladder inputs) becomes a small, testable unit.
+* Components and composables replace the manual `getElementById` wiring from the old prototype, so each control (currency wall, ladder inputs, background picker) becomes a small, testable unit.
 * Nitro server routes give the app a real backend: `/api/rates/[base]` proxies the Frankfurter API with built-in response caching, instead of an in-memory `Map` in the browser.
 * Auto-imports cover components, composables, and utils, so modules stay small without import boilerplate.
 * Hybrid rendering: the control panel shell is server-rendered for a fast first paint, while the canvas preview runs client-only where the DOM exists.
@@ -22,18 +22,20 @@ Target Nuxt 4 (v4.4.x is the current stable at the time of writing; use the late
 * The `@nuxtjs/i18n` module (built on Vue I18n) gives the app an English and Japanese interface with browser-language detection and a persisted language choice.
 
 
-## Current architecture
+## Current architecture (after Phase 0)
 
-The repo ships a working static prototype:
+Phase 0 is complete. The app lives in the Nuxt layout below. The live UI and renderer still follow the obsolete cards / multi-destination model; Phase 2 replaces that with the increment table.
 
-* `index.html`: the control panel plus a `<canvas id="preview">` and a download button.
-* `src/scripts/app.js`: application state, localStorage persistence, dropdown population, and event wiring.
-* `src/scripts/wallpaper.js`: the pure canvas renderer. Exports `renderWallpaper(canvas, data, size)`, `THEMES` (gradient palettes), and `DEVICE_SIZES` (iPhone resolutions). Currently draws a gradient background and multi-destination cards.
-* `src/scripts/api.js`: a thin client for the keyless, CORS-enabled Frankfurter rate API, with an in-memory cache keyed by base currency.
-* `src/data/currencies.js`: static currency metadata (`CURRENCIES`), `currencyMeta`, and `formatAmount`.
-* `src/styles/styles.css`: the control panel and preview styling.
+* `app/pages/index.vue`: owns wallpaper state and rates; composes the control panel and preview.
+* `app/components/control-panel.vue`, `currency-controls.vue`, `wallpaper-preview.vue`: control panel shell, home dropdown plus destination chips, and client-only canvas preview with PNG download.
+* `app/composables/use-wallpaper-state.js`: persistent settings under `STORAGE_KEY` (`ome-currency-converter:v1`).
+* `app/composables/use-rates.js`: fetches from the Nitro rates route, with a direct Frankfurter fallback on static hosts.
+* `app/utils/wallpaper.js`: pure canvas renderer; still paints gradient themes and destination cards.
+* `shared/utils/currencies.js`: `CURRENCIES`, `currencyMeta`, and `formatAmount`.
+* `server/api/rates/[base].get.js`: cached Frankfurter proxy.
+* `localization/en.json`: English UI strings (Japanese in Phase 4).
 
-Data flow today: `app.js` loads rates via `api.js`, builds a data object, and calls `renderWallpaper` in `wallpaper.js`, which paints the canvas at full iPhone resolution. The same canvas is CSS-scaled for the preview and exported to PNG on download.
+Data flow today: state and rates feed `renderWallpaper`, which paints the canvas at full iPhone resolution. The same canvas is CSS-scaled for the preview and exported to PNG on download.
 
 
 ## Target architecture
@@ -42,7 +44,7 @@ Data flow today: `app.js` loads rates via `api.js`, builds a data object, and ca
 flowchart LR
   subgraph client [Nuxt app]
     page[pages/index.vue]
-    controls[Control components: mode, currencies, ladder, background, size, position]
+    controls[Control components: currency wall, ladder, background, size, position]
     preview[wallpaper-preview.vue: client-only canvas]
     state[composables/use-wallpaper-state.js]
     rates[composables/use-rates.js]
@@ -50,7 +52,7 @@ flowchart LR
   subgraph server [Nitro server]
     api[server/api/rates/base.get.js: cached Frankfurter proxy]
   end
-  render[app/utils/wallpaper.js: renderWallpaper]
+  render[app/utils/wallpaper.js: renderWallpaper / increment table]
   bg[app/utils/backgrounds.js: curated photos]
   frankfurter[Frankfurter API]
 
@@ -68,21 +70,21 @@ flowchart LR
 
 ## Project structure
 
-Nuxt 4 uses `app/` as the application source directory, `server/` for Nitro code, and `shared/` for code used by both. The migration maps the current files as follows:
+Nuxt 4 uses `app/` as the application source directory, `server/` for Nitro code, and `shared/` for code used by both. Phase 0 mapped the old prototype files as follows (historical reference):
 
-| Current file               | New location                                          | Notes                                       |
+| Former prototype file      | Current location                                      | Notes                                       |
 | -------------------------- | ----------------------------------------------------- | ------------------------------------------- |
 | `index.html`               | `app/app.vue` + `app/pages/index.vue` + components    | Nuxt generates the HTML document.           |
 | `src/scripts/app.js`       | `app/composables/use-wallpaper-state.js` + components | State, persistence, and wiring split apart. |
 | `src/scripts/api.js`       | `server/api/rates/[base].get.js` + `use-rates.js`     | Fetch and cache move to the server.         |
-| `src/scripts/wallpaper.js` | `app/utils/wallpaper.js`                              | Pure renderer, unchanged logic.             |
+| `src/scripts/wallpaper.js` | `app/utils/wallpaper.js`                              | Pure renderer; Phase 2 replaces cards draw. |
 | `src/data/currencies.js`   | `shared/utils/currencies.js`                          | Shared by the app and the server route.     |
 | `src/styles/styles.css`    | `app/assets/css/main.css`                             | Registered via `css` in `nuxt.config.ts`.   |
 | `public/`                  | `public/`                                             | Unchanged.                                  |
 
 Component and composable file names stay `lowercase-with-dashes` per the repository naming rule; Nuxt auto-imports `control-panel.vue` as `<ControlPanel>`.
 
-Application modules stay plain JavaScript to keep the migration diff small. Nuxt supports this without extra configuration, and TypeScript can be adopted later file by file.
+Application modules stay plain JavaScript to keep diffs small. Nuxt supports this without extra configuration, and TypeScript can be adopted later file by file.
 
 
 ## Rendering strategy
@@ -95,33 +97,48 @@ Application modules stay plain JavaScript to keep the migration diff small. Nuxt
 
 ## New state shape
 
-State moves from module-level variables in `app.js` into a `useWallpaperState` composable, persisted with `useLocalStorage` under the existing `STORAGE_KEY` (`ome-currency-converter:v1`). The defaults extend the current shape with the new feature fields:
+State lives in `useWallpaperState`, persisted with `useLocalStorage` under `STORAGE_KEY` (`ome-currency-converter:v1`). Phase 2 replaces the cards-era fields (`base`, `destinations`, `referenceAmount`, `mode`, `travelCurrency`) with home/travel slots and ladder settings:
 
 ```js
 // app/composables/use-wallpaper-state.js
 export const defaultState = {
-  base: "USD",
-  destinations: ["JPY", "EUR", "THB"],
-  referenceAmount: 100,
+  home: "USD",             // currency code, or null when cleared
+  travel: "JPY",           // currency code, or null when cleared
+  step: 5,                 // ladder step (integer, min 1)
+  rowCount: 5,             // number of ladder rows (3 to 10)
+  includeOne: true,        // prepend a 1-unit row when not already present
   theme: "midnight",
   device: "pro-max",
   title: "Travel rates",
-  // new
-  mode: "cards",           // "cards" | "table"
-  travelCurrency: "JPY",   // used in table mode
-  step: 5,                 // ladder step
-  rowCount: 5,             // number of ladder rows
-  includeOne: true,        // prepend a 1-unit row
   backgroundId: null,      // id into backgrounds.js, or null for gradient
   position: "center",      // "center" | "left"
 };
 ```
 
-`useLocalStorage` is configured with `mergeDefaults: true`, so older saved state stays compatible because missing fields fall back to defaults, exactly as the current `loadState` merge does.
+`home` and `travel` may each be `null` so the UI can hold a partial selection. Preview and download require both to be non-null and different codes.
 
-The default mode is `cards` until the increment table renderer ships. Phase 2 flips the default to `table` so a new user lands on the ladder layout, while a returning user keeps whatever mode their saved state holds.
+`useLocalStorage` is configured with `mergeDefaults: true`. On Phase 2 ship, migrate saved cards-era keys when present: map `base` to `home`, map `travelCurrency` (or the first usable entry of `destinations`) to `travel`, and drop `destinations`, `referenceAmount`, and `mode`.
 
 The interface language is not part of this state; `@nuxtjs/i18n` persists the language choice in its own cookie.
+
+
+## Currency-wall selection model
+
+`currency-controls.vue` presents one chip grid (currency wall). There is no separate Home dropdown. Helpers in the composable or component enforce:
+
+| Current state | User action                                        | Result                                   |
+| ------------- | -------------------------------------------------- | ---------------------------------------- |
+| Both empty    | Tap code A                                         | `home = A`                               |
+| Home only     | Tap code B (not home)                              | `travel = B`                             |
+| Travel only   | Tap code A (not travel)                            | `home = A`                               |
+| Both set      | Tap home again                                     | `home = null` (travel unchanged)         |
+| Both set      | Tap travel again                                   | `travel = null` (home unchanged)         |
+| Both set      | Tap code C (neither)                               | former travel becomes home; `travel = C` |
+| One slot set  | Tap the same code that fills that slot             | clear that slot                          |
+
+Selected chips show a home marker or travel marker. The same code cannot occupy both slots.
+
+Rates fetch uses `home` as the Frankfurter base when `home` is set. When only `travel` is set, defer rate fetch until home is chosen (or document an explicit fallback if needed during implementation).
 
 
 ## Ladder logic
@@ -146,8 +163,6 @@ export function buildLadder({ step, rowCount, includeOne }) {
 
 Input constraints: `step` is an integer with a minimum of 1, and `rowCount` is an integer clamped to the range 3 to 10 so the ladder always fits the canvas. The UI inputs enforce these bounds, and `buildLadder` clamps its inputs again so the function stays safe when called directly.
 
-The rough sketch used 1, 5, 10, 15, 25, which is not a uniform step. The configurable model is preferred; a traveler who wants that exact set can be supported later with a free-form amounts input, but the default is the uniform ladder above.
-
 Placing `buildLadder` in `shared/utils/` keeps it a pure function that unit tests can import without booting Nuxt.
 
 
@@ -157,21 +172,21 @@ Placing `buildLadder` in `shared/utils/` keeps it a pure function that unit test
 ### `server/api/rates/[base].get.js`
 
 * A Nitro route that proxies `https://api.frankfurter.dev/v1/latest?base=<base>` and returns `{ base, date, rates }`.
-* Wrapped in `defineCachedEventHandler` with a one-hour `maxAge` and `staleWhileRevalidate`, since ECB reference rates update once per working day. This replaces the in-memory `Map` cache in the current `api.js`.
+* Wrapped in `defineCachedEventHandler` with a one-hour `maxAge` and `staleWhileRevalidate`, since ECB reference rates update once per working day.
 * Validates `base` against the shared currency list and returns a 400 error for unknown codes.
 
 
 ### `app/composables/use-rates.js`
 
 * Wraps `useFetch("/api/rates/" + base)` so the page gets rates during server-side rendering and reuses the payload on the client.
-* Exposes `refresh()` for the manual refresh button, mirroring the current `force` option.
+* Exposes `refresh()` for the manual refresh button.
 * Falls back to a direct browser call to Frankfurter when the server route is unavailable: if the request to `/api/rates/<base>` fails (for example, a static host returns 404 for the route), the composable calls the Frankfurter endpoint directly from the browser and remembers that choice for the rest of the session.
 
 
 ### Currency metadata
 
-* `shared/utils/currencies.js` keeps `CURRENCIES`, `currencyMeta`, and `formatAmount` as-is.
-* The currency code list for the dropdowns comes from this static data, with an optional live top-up from `https://api.frankfurter.dev/v1/currencies`, matching the current fallback behavior in `fetchCurrencyCodes`.
+* `shared/utils/currencies.js` keeps `CURRENCIES`, `currencyMeta`, and `formatAmount`.
+* The currency code list for the wall comes from this static data, with an optional live top-up from `https://api.frankfurter.dev/v1/currencies`.
 
 
 ## Internationalization
@@ -189,57 +204,59 @@ The interface supports English and Japanese through the official `@nuxtjs/i18n` 
 ## Per-area changes
 
 
-### New: `app/utils/backgrounds.js`
+### New: `app/utils/backgrounds.js` (Phase 1)
 
 * Export `BACKGROUNDS`: an array of curated photo descriptors. See `docs/backgrounds.md` for the field shape and the curated list.
 * Export `loadBackgroundImage(id)`: returns a `Promise<HTMLImageElement>`. It sets `img.crossOrigin = "anonymous"` before `img.src` so the drawn canvas stays untainted and exportable. Rejects on error so callers can fall back to a gradient theme.
-* Cache loaded `HTMLImageElement`s in a `Map` keyed by id, so switching modes or positions does not refetch the photo. This module is browser-only and is only ever called from client-side components.
+* Cache loaded `HTMLImageElement`s in a `Map` keyed by id, so switching positions does not refetch the photo. This module is browser-only and is only ever called from client-side components.
 
 
-### `app/utils/wallpaper.js`
+### `app/utils/wallpaper.js` (Phase 2 replaces cards draw)
 
-Extend the renderer without breaking the existing cards path:
+Replace the destination-cards path with the increment-table path. Do not preserve multi-destination cards as a secondary mode.
 
-1. Background: if `data.background` (a loaded image) is present, draw it cover-fit (scale to fill, center-crop) instead of the gradient, then draw a dark scrim gradient over it for text legibility. If no image is present, keep the current gradient theme.
+1. Background: if `data.background` (a loaded image) is present, draw it cover-fit (scale to fill, center-crop) instead of the gradient, then draw a dark scrim gradient over it for text legibility. If no image is present, keep the gradient theme.
 2. Legibility scrim: a semi-opaque vertical gradient (darker where the content block sits) so light text stays readable over any photo. When `position` is left, weight the scrim toward the left.
-3. Positioning: support `data.position` of `center` or `left`. Center keeps the current centered layout. Left anchors the content block to the left portion of the canvas (roughly the left 55 to 60 percent) and left-aligns text, leaving the right side clear for app icons.
-4. Increment table renderer: add `renderIncrementTable(ctx, ...)` used when `data.mode === "table"`. It draws a header (`1 HOME = value TRAVEL` plus the date) and one row per ladder amount, each row showing `amount HOME` on the left and the converted `value TRAVEL` on the right, honoring the position anchor.
-5. Attribution: when a photo background is used, draw a small photographer credit (for example, "Photo: Name / Unsplash") near the bottom edge.
-6. Keep `DEVICE_SIZES` and `THEMES` exports as-is; the gradient themes become the no-photo fallback.
+3. Positioning: support `data.position` of `center` or `left`. Center keeps a centered content panel. Left anchors the content block to the left portion of the canvas (roughly the left 55 to 60 percent) and left-aligns text, leaving the right side clear for app icons.
+4. Increment table renderer: `renderIncrementTable(ctx, ...)` is the only content layout. It draws a semi-transparent panel matching the hierarchy in [example-wallpaper.png](./example-wallpaper.png): column headers with currency codes (left = home, right = travel), then one row per ladder amount with home amount left and converted travel amount right. Format amounts with currency-appropriate symbols and separators (and compact forms such as `2.0K` when useful for large home steps).
+5. Attribution: when a photo background is used, draw a small photographer credit near the bottom edge.
+6. Keep `DEVICE_SIZES` and `THEMES` exports; the gradient themes remain the no-photo fallback.
+7. Incomplete pair: if `home` or `travel` is missing, or the travel rate is unavailable, do not invent amounts. The preview component shows an empty-state message and disables download instead of calling the table painter with guessed data.
 
-The signature stays `renderWallpaper(canvas, data, size)`; extend the `data` object with `mode`, `travelCurrency`, `ladder`, `background`, `attribution`, and `position` fields. The module stays free of Vue imports so it remains a pure, unit-testable renderer.
+The signature stays `renderWallpaper(canvas, data, size)`; the `data` object carries `home`, `travel`, `ladder`, `rate`, `background`, `attribution`, and `position`. The module stays free of Vue imports so it remains a pure, unit-testable renderer.
 
 
 ### Components
 
-* `app/components/wallpaper-preview.vue`: owns the `<canvas>`, watches the state and rates, calls `renderWallpaper`, and handles the PNG download via `canvas.toBlob`. The download filename keeps the cards pattern `wallpaper-<base>-<destinations>.png`, and table mode uses `wallpaper-<base>-<travel>-table.png`. Wrapped in `<ClientOnly>` by the page.
+* `app/components/wallpaper-preview.vue`: owns the `<canvas>`, watches the state and rates, calls `renderWallpaper` when the pair is complete, shows an incomplete-pair message otherwise, and handles PNG download via `canvas.toBlob`. Filename pattern: `wallpaper-<home>-<travel>.png`. Wrapped in `<ClientOnly>` by the page.
 * `app/components/control-panel.vue`: the settings column, composed of the smaller controls below.
-* `app/components/mode-toggle.vue`: segmented control for cards versus table.
-* `app/components/currency-controls.vue`: base select, destination chips (cards mode), and travel currency select, step, row count, and include-one inputs (table mode). Shows or hides fields by `state.mode`.
-* `app/components/background-picker.vue`: thumbnail grid built from `BACKGROUNDS`, with a "none" option that falls back to gradient themes. On selection it calls `loadBackgroundImage`; on failure it clears `backgroundId` and shows a status message.
-* `app/components/position-toggle.vue`: center or left.
-* `app/components/language-switcher.vue`: toggles the interface between English and Japanese.
-* `app/components/attribution-note.vue`: shows the selected photo credit next to the preview.
+* `app/components/currency-controls.vue`: the currency wall plus step, row count, and include-one inputs. Remove the Home dropdown, destination multi-select, and any cards-only fields such as reference amount.
+* `app/components/background-picker.vue` (Phase 1): thumbnail grid built from `BACKGROUNDS`, with a "none" option that falls back to gradient themes.
+* `app/components/position-toggle.vue` (Phase 3): center or left.
+* `app/components/language-switcher.vue` (Phase 4): toggles the interface between English and Japanese.
+* `app/components/attribution-note.vue` (Phase 5): shows the selected photo credit next to the preview.
+
+Do not add `mode-toggle.vue`. There is only one wallpaper layout.
 
 
 ### `app/pages/index.vue`
 
 * Composes the control panel and the preview.
 * Calls `useWallpaperState()` and `useRates()` once and passes them down via props or `provide`, keeping a single source of truth.
-* Computes the render data by mode:
-  * Cards: the existing `activeDestinations()` logic becomes a computed over `state.destinations` and the fetched rates.
-  * Table: `ladder = buildLadder(state)` plus `travelCurrency` and its rate from `rates.value.rates`.
+* Computes render data: `ladder = buildLadder(state)`, rate for `travel` from `rates.value.rates[travel]` when both slots are filled and rates for `home` are loaded.
 
 
 ### `app/assets/css/main.css`
 
-* Carries over `src/styles/styles.css` and adds styles for the mode toggle, the background thumbnail grid (selected state mirrors the existing `.chip.selected` treatment), and the position control.
-* Scoped styles inside components are allowed for new component-local rules, but the shared panel, field, chip, and button styles stay global to keep the visual language consistent.
+* Keeps the shared panel, field, chip, and button styles.
+* Phase 2 adjusts chip selected styles for home versus travel markers.
+* Phase 1 adds the background thumbnail grid; Phase 3 adds the position control.
+* Scoped styles inside components are allowed for new component-local rules.
 
 
 ### `nuxt.config.ts`
 
-Minimal configuration:
+Minimal configuration (already in place from Phase 0):
 
 ```ts
 export default defineNuxtConfig({
@@ -261,19 +278,15 @@ export default defineNuxtConfig({
 });
 ```
 
-The i18n `langDir` option points the module at the `localization/` folder, so the locale files stay with the other translation resources. Treat the snippet as illustrative rather than exact: the `@nuxtjs/i18n` option shape (notably `langDir` and the default `i18n/` directory restructure) changes between module major versions, so follow the module documentation for the installed version.
+The i18n `langDir` option points the module at the `localization/` folder. Treat the snippet as illustrative rather than exact: follow the module documentation for the installed version.
 
 
 ## Tooling and commands
 
-* Dependencies: `pnpm add nuxt vue` and `pnpm add -D @nuxtjs/i18n @vueuse/nuxt @vueuse/core`. The direct `vite` devDependency is removed because Nuxt bundles its own Vite.
-* `package.json` scripts change to the Nuxt CLI, kept sorted alphabetically:
-  * `dev`: `nuxt dev`
-  * `build`: `nuxt build`
-  * `generate`: `nuxt generate` (static export escape hatch)
-  * `preview`: `nuxt preview`
-* Prettier, markdownlint, the file name check, and the license check all stay as-is; add `.nuxt/`, `.output/`, and `node_modules/` to the relevant ignore files.
-* Testing gains `pnpm add -D vitest @nuxt/test-utils @vue/test-utils happy-dom` with a `test-unit` script wired into `pnpm test`.
+* Runtime dependencies: `nuxt` and `vue`. Dev modules already include `@nuxtjs/i18n`, `@vueuse/nuxt`, and `@vueuse/core`.
+* `package.json` scripts (sorted alphabetically): `dev` (`nuxt dev`), `build`, `generate`, `preview`, plus lint and test scripts. See the root `README.md`.
+* Prettier, markdownlint, the file name check, and the license check stay as-is.
+* Testing uses Vitest with `pnpm test-unit` wired into `pnpm test`.
 
 
 ## CORS and canvas export
@@ -285,9 +298,9 @@ The i18n `langDir` option points the module at the `localization/` folder, so th
 
 ## Phased roadmap
 
-1. Phase 0, Nuxt migration with feature parity: scaffold Nuxt 4, move the renderer, currency data, and styles into the new structure, rebuild the current cards-mode UI as components, add the rates server route, and confirm the preview and PNG download match the prototype. Set up `@nuxtjs/i18n` and externalize every UI string into `localization/en.json` from the start, so adding Japanese later needs no refactoring. Update the folder `README.md` files for the new layout.
-2. Phase 1, backgrounds module and photo rendering: add `app/utils/backgrounds.js`, wire the background picker, and teach `renderWallpaper` to draw a cover-fit photo with a scrim and attribution. Gradient stays the fallback. Curating the 12 photos follows the proposal and approval flow in [backgrounds.md](./backgrounds.md): research candidates, write them into a review note for maintainer approval, and wire only the approved set.
-3. Phase 2, increment table mode: add the mode toggle, travel currency, step, and row count controls; implement `buildLadder` and `renderIncrementTable`; keep cards mode working. Flip the default mode to `table` so a new user lands on the ladder layout.
+1. Phase 0, Nuxt migration (complete): scaffold Nuxt 4, move the renderer, currency data, and styles into the new structure, rebuild the then-current cards UI as components for feature parity with the Vite prototype, add the rates server route, and confirm preview and PNG download. Set up `@nuxtjs/i18n` and externalize UI strings into `localization/en.json`. Cards parity was a migration checkpoint only; it is not the ongoing product goal.
+2. Phase 1, backgrounds module and photo rendering: add `app/utils/backgrounds.js`, wire the background picker, and teach `renderWallpaper` to draw a cover-fit photo with a scrim and attribution. Gradient stays the fallback. Curating the 12 photos follows the proposal and approval flow in [backgrounds.md](./backgrounds.md).
+3. Phase 2, increment-table wallpaper (product vision): remove multi-destination cards from state, UI, and renderer. Add the currency-wall home/travel selection model, step and row count controls, `shared/utils/ladder.js`, and `renderIncrementTable`. Incomplete pairs disable download and show an empty state. This phase ships the only supported wallpaper layout.
 4. Phase 3, positioning: add the center or left control and update the renderer to anchor and align the content block, weighting the scrim accordingly.
 5. Phase 4, Japanese localization: translate `localization/en.json` into `localization/ja.json` following [glossary.yaml](./glossary.yaml) and the Japanese general style guide, add the language switcher, localize currency names and number formats through the `Intl` APIs, and verify the wallpaper renders correctly in both languages.
 6. Phase 5, polish and deployment: attribution UI, responsive control layout, empty and error states, a legibility pass across all curated photos, and picking the Nitro deployment preset (or `nuxt generate` for a static host).
@@ -295,12 +308,13 @@ The i18n `langDir` option points the module at the `localization/` folder, so th
 
 ## Testing notes
 
-* Unit tests (Vitest): `buildLadder` (including the duplicate-1 skip and the step and row count clamps), `formatAmount`, and the rates route handler with a mocked Frankfurter response.
-* Component tests (`@nuxt/test-utils`): the control panel shows and hides fields by mode, and the background picker falls back to gradient on load failure.
-* Manual checks, unchanged from the prototype:
-  * Verify PNG export still works with a photo background selected (canvas not tainted).
-  * Verify each iPhone size renders the table and cards without clipping.
+* Unit tests (Vitest): `buildLadder` (including the duplicate-1 skip and the step and row count clamps), currency-wall selection transitions (home-only, travel-only, re-tap, rotate on third tap), `formatAmount`, and the rates route handler with a mocked Frankfurter response.
+* Component tests (`@nuxt/test-utils`): currency controls enforce at most two selected roles; preview disables download when the pair is incomplete; background picker falls back to gradient on load failure.
+* Manual checks:
+  * Verify PNG export works with a photo background selected (canvas not tainted).
+  * Verify each iPhone size renders the increment table without clipping.
   * Verify left position leaves the right portion of the wallpaper clear for app icons.
   * Verify the app still loads and renders if the rate API or a background image fails.
+  * Verify incomplete home/travel selection never invents a partner currency on the canvas.
 * Verify the interface and the generated wallpaper render correctly in both English and Japanese, including longer Japanese labels fitting the control layout and the canvas.
 * Verify the `nuxt generate` static export still fetches rates via the client fallback.

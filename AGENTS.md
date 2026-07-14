@@ -5,20 +5,15 @@ These rules apply to all AI agents working in this repository. This is the canon
 
 ## Project overview
 
-Ome Currency Converting Wallpaper is a web app that generates an iPhone wallpaper containing a currency exchange reference. The wallpaper itself is the product; the controls exist only to configure it. A user picks currencies, a background, an iPhone size, and a layout, then downloads a PNG sized to their device. The interface supports English and Japanese.
+Ome Currency Converting Wallpaper is a web app that generates an iPhone wallpaper containing a currency exchange reference. The wallpaper itself is the product; the controls exist only to configure it. A user picks exactly one home currency and one travel currency on a shared currency wall, configures an amount ladder (step and row count), chooses a background and an iPhone size, then downloads a PNG sized to their device. The wallpaper is a two-column increment table (left = home amounts, right = travel amounts). The interface supports English and Japanese.
 
-The app runs on [Nuxt](https://nuxt.com/) 4, the full-stack Vue framework. Phase 0 of [docs/technical-plan.md](docs/technical-plan.md), the migration from the old Vite prototype, is complete with cards-mode feature parity. Phases 1 to 5 (photo backgrounds, increment table mode, positioning, Japanese localization, and polish) are still pending.
-
-The app supports two rendering modes:
-
-* Cards mode - one home currency against multiple destination currencies, one card each. This is the mode the app renders today.
-* Increment table mode - a single home to travel pair shown as a configurable amount ladder (for example, 1, 5, 10, 15, 20). Planned for Phase 2.
+The app runs on [Nuxt](https://nuxt.com/) 4, the full-stack Vue framework. Phase 0 of [docs/technical-plan.md](docs/technical-plan.md), the migration from the old Vite prototype, is complete. That migration preserved a temporary cards-style UI for parity with the prototype; cards and multi-destination layouts are out of product scope. Phases 1 to 5 (photo backgrounds, increment-table wallpaper and currency-wall selection, positioning, Japanese localization, and polish) are still pending. Phase 2 replaces the cards UI with the increment table as the only wallpaper layout.
 
 Live rates come from the keyless, CORS-enabled Frankfurter API (European Central Bank reference rates). Backgrounds are gradient themes today; Phase 1 adds a curated, bundled set of Unsplash photo links (no API key). The wallpaper is painted on a `<canvas>` at full device resolution and exported to PNG.
 
 For the full specification, read the planning documents before making product changes:
 
-* [docs/product-spec.md](docs/product-spec.md) - problem, user flow, modes, and feature list.
+* [docs/product-spec.md](docs/product-spec.md) - problem, user flow, currency selection, and feature list.
 * [docs/technical-plan.md](docs/technical-plan.md) - architecture, state shape, per-file changes, and phased roadmap.
 * [docs/backgrounds.md](docs/backgrounds.md) - curated background manifest, attribution, and how to add or swap a photo.
 
@@ -75,9 +70,9 @@ The current app:
 * `app/pages/index.vue` owns the single wallpaper state and the single rates instance and passes both down to the components as props.
 * `app/composables/use-wallpaper-state.js` holds the settings and persists them to `localStorage` under the same key as the old prototype.
 * `server/api/rates/[base].get.js` is a cached Nitro route that proxies the Frankfurter API. `app/composables/use-rates.js` fetches from it and falls back to calling Frankfurter directly on static hosts where the route does not exist.
-* `app/utils/wallpaper.js` is the pure renderer. It paints a gradient theme background and the cards-mode currency content on a `<canvas>`, which `app/components/wallpaper-preview.vue` shows as the live preview and exports to PNG.
+* `app/utils/wallpaper.js` is the pure renderer. Today it still paints the Phase 0 cards-style content on a `<canvas>`; Phase 2 replaces that with the increment-table layout. `app/components/wallpaper-preview.vue` shows the live preview and exports to PNG.
 
-Later phases extend this flow. Phase 1 adds `app/utils/backgrounds.js`, which exports the curated `BACKGROUNDS` manifest and a `loadBackgroundImage(id)` helper that sets `crossOrigin = "anonymous"` so the canvas stays exportable. When extending the app, follow the phased roadmap and per-area plan in [docs/technical-plan.md](docs/technical-plan.md).
+Later phases extend this flow. Phase 1 adds `app/utils/backgrounds.js`, which exports the curated `BACKGROUNDS` manifest and a `loadBackgroundImage(id)` helper that sets `crossOrigin = "anonymous"` so the canvas stays exportable. Phase 2 adds `shared/utils/ladder.js` and rewires currency controls and the renderer for the home/travel increment table. When extending the app, follow the phased roadmap and per-area plan in [docs/technical-plan.md](docs/technical-plan.md).
 
 
 ## Skills

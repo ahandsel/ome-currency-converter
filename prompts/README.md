@@ -16,24 +16,25 @@ To use a prompt, reference the prompt's file path in the AI interface (VS Code e
 
 ## Contents
 
-| Prompt                                  | Description                                                                                                                                                |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [build-webapp-orchestrator.prompt.md][] | Build the Nuxt webapp one roadmap phase at a time by delegating scoped subtasks to tailored subagents, with verification gates and maintainer checkpoints. |
-| [csv-lint.prompt.md][]                  | Lint CSV files with minimal quoting and consistent formatting.                                                                                             |
-| [csv-to-md.prompt.md][]                 | Convert CSV tables into Markdown tables.                                                                                                                   |
-| [md-en-review.prompt.md][]              | Proofread and edit English text for clarity, grammar, and style guide compliance.                                                                          |
-| [md-lint.prompt.md][]                   | Scan Markdown files, update tables of contents, fix formatting, and enforce the style guide.                                                               |
-| [md-ref-link.prompt.md][]               | Convert inline Markdown links into reference-style links.                                                                                                  |
-| [md-to-csv.prompt.md][]                 | Convert Markdown tables into CSV.                                                                                                                          |
-| [md-to-list.prompt.md][]                | Convert a Markdown table into a nested Markdown list without changing cell text or order.                                                                  |
-| [prd-review-terms.prompt.md][]          | Extract and define terminology from a PRD document.                                                                                                        |
-| [quick-en-review.prompt.md][]           | Quickly proofread and edit English text for clarity, grammar, and style.                                                                                   |
-| [repo-public-audit.prompt.md][]         | Audit a repository for personal, public use and flag terms or files that do not fit its purpose.                                                           |
-| [script-review-min.prompt.md][]         | Review and improve a script with minimal, surgical edits.                                                                                                  |
-| [script-review.prompt.md][]             | Review and improve a script for quality, readability, reusability, scalability, and security.                                                              |
-| [script-version-sync.prompt.md][]       | Auto-update changed scripts' version history and flag related documentation that is out of sync.                                                           |
-| [ux-check-csv.prompt.md][]              | Proofread and edit UX copy in a CSV file.                                                                                                                  |
-| [ux-check-md.prompt.md][]               | Proofread and edit UX copy in a Markdown table.                                                                                                            |
+| Prompt                                     | Description                                                                                                                                                              |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [build-webapp-orchestrator.prompt.md][]    | Build the Nuxt webapp one roadmap phase at a time by delegating scoped subtasks to tailored subagents, with verification gates and maintainer checkpoints.               |
+| [csv-lint.prompt.md][]                     | Lint CSV files with minimal quoting and consistent formatting.                                                                                                           |
+| [csv-to-md.prompt.md][]                    | Convert CSV tables into Markdown tables.                                                                                                                                 |
+| [md-en-review.prompt.md][]                 | Proofread and edit English text for clarity, grammar, and style guide compliance.                                                                                        |
+| [md-lint.prompt.md][]                      | Scan Markdown files, update tables of contents, fix formatting, and enforce the style guide.                                                                             |
+| [md-ref-link.prompt.md][]                  | Convert inline Markdown links into reference-style links.                                                                                                                |
+| [md-to-csv.prompt.md][]                    | Convert Markdown tables into CSV.                                                                                                                                        |
+| [md-to-list.prompt.md][]                   | Convert a Markdown table into a nested Markdown list without changing cell text or order.                                                                                |
+| [prd-review-terms.prompt.md][]             | Extract and define terminology from a PRD document.                                                                                                                      |
+| [quick-en-review.prompt.md][]              | Quickly proofread and edit English text for clarity, grammar, and style.                                                                                                 |
+| [repo-public-audit.prompt.md][]            | Audit a repository for personal, public use and flag terms or files that do not fit its purpose.                                                                         |
+| [script-review-min.prompt.md][]            | Review and improve a script with minimal, surgical edits.                                                                                                                |
+| [script-review.prompt.md][]                | Review and improve a script for quality, readability, reusability, scalability, and security.                                                                            |
+| [script-version-sync.prompt.md][]          | Auto-update changed scripts' version history and flag related documentation that is out of sync.                                                                         |
+| [two-currency-increment-table.prompt.md][] | Correct Phase 0 product vision to a single home/travel increment-table wallpaper, update related docs (including product-spec), and remove multi-destination cards mode. |
+| [ux-check-csv.prompt.md][]                 | Proofread and edit UX copy in a CSV file.                                                                                                                                |
+| [ux-check-md.prompt.md][]                  | Proofread and edit UX copy in a Markdown table.                                                                                                                          |
 
 [build-webapp-orchestrator.prompt.md]: build-webapp-orchestrator.prompt.md
 [csv-lint.prompt.md]: csv-lint.prompt.md
@@ -49,5 +50,6 @@ To use a prompt, reference the prompt's file path in the AI interface (VS Code e
 [script-review-min.prompt.md]: script-review-min.prompt.md
 [script-review.prompt.md]: script-review.prompt.md
 [script-version-sync.prompt.md]: script-version-sync.prompt.md
+[two-currency-increment-table.prompt.md]: two-currency-increment-table.prompt.md
 [ux-check-csv.prompt.md]: ux-check-csv.prompt.md
 [ux-check-md.prompt.md]: ux-check-md.prompt.md

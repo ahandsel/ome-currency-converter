@@ -1,11 +1,12 @@
 # ome-currency-converter
 
-A web app that generates an iPhone wallpaper showing live travel exchange rates.
+A web app that generates an iPhone wallpaper showing a home-to-travel currency exchange reference as a configurable amount ladder.
 Rates come from the European Central Bank via the Frankfurter API.
 
 The app is built on [Nuxt](https://nuxt.com/) 4, the full-stack Vue framework.
-Phase 0 of [docs/technical-plan.md](docs/technical-plan.md), the migration from the old Vite prototype with cards-mode feature parity, is complete.
-Phases 1 to 5 (photo backgrounds, increment table mode, positioning, Japanese localization, and polish) are still pending.
+Phase 0 of [docs/technical-plan.md](docs/technical-plan.md), the migration from the old Vite prototype, is complete.
+Phases 1 to 5 (photo backgrounds, increment-table wallpaper and currency-wall selection, positioning, Japanese localization, and polish) are still pending.
+The product target is a single home/travel pair on an increment-table wallpaper; multi-destination cards are out of scope.
 
 
 ## Project structure

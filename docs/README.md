@@ -23,7 +23,7 @@ Planning documents for the Ome Currency Converting Wallpaper app, plus the writi
 
 These documents define the product and its implementation plan. Read them before making product changes.
 
-* [Product spec](./product-spec.md) - problem, target user, rendering modes, user flow, and feature list.
+* [Product spec](./product-spec.md) - problem, target user, increment-table layout, currency-wall selection, user flow, and feature list.
 * [Technical plan](./technical-plan.md) - the Nuxt target architecture, state shape, per-area changes, and phased roadmap.
 * [Curated backgrounds](./backgrounds.md) - background manifest shape, curated list, attribution, and how to add or swap a photo.
 
@@ -34,8 +34,9 @@ These documents define the product and its implementation plan. Read them before
 docs/
 ├── README.md ........................... This file
 ├── product-spec.md ..................... Product spec for the wallpaper app
-├── technical-plan.md ................... Nuxt migration and feature plan
+├── technical-plan.md ................... Nuxt architecture and feature plan
 ├── backgrounds.md ...................... Curated background manifest and attribution
+├── example-wallpaper.png ............... Visual reference for the increment-table layout
 ├── general-style-guide-english.md ...... Baseline writing rules (English)
 ├── general-style-guide-japanese.md ..... Baseline writing rules (Japanese)
 ├── markdown-style-guide.md ............. Markdown formatting conventions (banners and links)

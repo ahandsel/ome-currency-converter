@@ -36,9 +36,9 @@ Read all of these before planning anything. Do not delegate until you have.
 
 Phase detection checklist, in order; the first item that is false marks the phase to run:
 
-* Phase 0 is done when `nuxt.config.ts`, `app/`, and `server/api/rates/` exist and `pnpm dev` boots a working cards-mode app.
+* Phase 0 is done when `nuxt.config.ts`, `app/`, and `server/api/rates/` exist and `pnpm dev` boots the migrated app (Phase 0 still uses the obsolete cards-style UI as a migration checkpoint).
 * Phase 1 is done when `app/utils/backgrounds.js` exists with approved photos and the renderer draws photo backgrounds.
-* Phase 2 is done when `shared/utils/ladder.js` and the increment table renderer and controls exist.
+* Phase 2 is done when cards / multi-destination UI is removed, `shared/utils/ladder.js` exists, the currency wall selects home and travel only, and the increment-table renderer is the only wallpaper layout.
 * Phase 3 is done when the position control exists and the renderer anchors content left or center.
 * Phase 4 is done when `localization/ja.json` is complete and the language switcher works.
 * Phase 5 is the remaining polish and deployment work.
