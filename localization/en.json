@@ -1,0 +1,37 @@
+{
+  "app": {
+    "title": "Ome Currency Converter",
+    "tagline": "Make an iPhone wallpaper with live travel exchange rates.",
+    "metaTitle": "Ome Currency Converter - travel wallpaper",
+    "metaDescription": "Generate an iPhone wallpaper showing live currency exchange rates for your trip."
+  },
+  "controls": {
+    "ariaLabel": "Wallpaper settings",
+    "homeCurrency": "Home currency",
+    "destinations": "Destinations",
+    "destinationsHint": "Tap the currencies you want on your wallpaper.",
+    "referenceAmount": "Reference amount",
+    "referenceAmountHint": "Shows what this much home currency is worth.",
+    "theme": "Theme",
+    "device": "iPhone size",
+    "title": "Title",
+    "refresh": "Refresh rates"
+  },
+  "status": {
+    "fetching": "Fetching latest rates…",
+    "updated": "Rates as of {date}.",
+    "fetchError": "Could not fetch rates. Check your connection and try Refresh.",
+    "downloadError": "Could not generate the image."
+  },
+  "preview": {
+    "ariaLabel": "Wallpaper preview",
+    "download": "Download wallpaper",
+    "saveHint": "On iPhone: download, open in Photos, then set as wallpaper. Tip: tap and hold the downloaded image to save it directly."
+  },
+  "footer": {
+    "credit": "Rates from the European Central Bank via {link}. Updated on business days; not for trading."
+  },
+  "wallpaper": {
+    "defaultTitle": "Travel rates"
+  }
+}

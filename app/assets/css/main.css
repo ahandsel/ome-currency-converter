@@ -1,0 +1,245 @@
+:root {
+  --bg: #0b1020;
+  --panel: #151b2e;
+  --panel-2: #1c2540;
+  --line: #2a3252;
+  --text: #e8ecf6;
+  --muted: #97a2c0;
+  --accent: #6366f1;
+  --accent-2: #22d3ee;
+  --radius: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  background: radial-gradient(1200px 600px at 80% -10%, #1b2348 0, transparent 60%), var(--bg);
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+.topbar {
+  text-align: center;
+  padding: 32px 16px 8px;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(280px, 420px);
+  gap: 28px;
+  align-items: start;
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 20px;
+}
+
+@media (max-width: 840px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .preview {
+    order: -1;
+  }
+}
+
+/* ---- controls ---- */
+.controls {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+
+.field {
+  margin-bottom: 20px;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+label,
+.field-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.hint {
+  margin: 4px 0 8px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+select,
+input[type="number"],
+input[type="text"] {
+  width: 100%;
+  padding: 11px 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+select:focus,
+input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.chip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
+  gap: 8px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.92rem;
+  user-select: none;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+}
+
+.chip.selected {
+  background: linear-gradient(135deg, var(--accent), #4f46e5);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.chip .flag {
+  font-size: 1.1rem;
+}
+
+.chip[aria-disabled="true"] {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.actions {
+  margin-top: 4px;
+}
+
+.btn {
+  border: none;
+  border-radius: 11px;
+  padding: 12px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.05s, filter 0.12s;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn.primary {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  color: #07101f;
+  margin-top: 14px;
+}
+
+.btn.primary:hover {
+  filter: brightness(1.05);
+}
+
+.btn.ghost {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+
+.status {
+  margin-top: 14px;
+  min-height: 1.2em;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.status.error {
+  color: #fca5a5;
+}
+
+/* ---- preview ---- */
+.preview {
+  position: sticky;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.canvas-frame {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  background: #000;
+}
+
+.preview-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.save-hint {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 12px;
+  max-width: 300px;
+}
+
+.sitefoot {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+  padding: 20px 16px 40px;
+}
+
+.sitefoot a {
+  color: var(--accent-2);
+}
