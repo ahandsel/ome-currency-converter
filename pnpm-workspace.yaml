@@ -1,13 +1,11 @@
-allowBuilds:
-  '@parcel/watcher': set this to true or false
-  esbuild: set this to true or false
-
 # Configure pnpm settings for the workspace
 
 # Delay installing published versions to reduce security risk.
 minimumReleaseAge: 4320 # Three-day buffer for security updates.
 
 # Allow these dependencies to run their install/build scripts.
-# esbuild fetches its platform binary during install and Vite needs it.
-onlyBuiltDependencies:
-  - esbuild
+# esbuild fetches its platform binary during install (Vite / Nuxt need it).
+# @parcel/watcher builds a native file-watcher used by Nuxt's watcher.
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true

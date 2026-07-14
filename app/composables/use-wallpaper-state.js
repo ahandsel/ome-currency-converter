@@ -2,22 +2,22 @@
 // Stored in localStorage under the same key as the prototype, so a returning
 // user's saved setup carries over unchanged.
 
-export const STORAGE_KEY = "ome-currency-converter:v1";
+export const STORAGE_KEY = 'ome-currency-converter:v1';
 
 export const defaultState = {
-  base: "USD",
-  destinations: ["JPY", "EUR", "THB"],
+  base: 'USD',
+  destinations: ['JPY', 'EUR', 'THB'],
   referenceAmount: 100,
-  theme: "midnight",
-  device: "pro-max",
-  title: "Travel rates",
-  mode: "cards",
-  travelCurrency: "JPY",
+  theme: 'midnight',
+  device: 'pro-max',
+  title: 'Travel rates',
+  mode: 'cards',
+  travelCurrency: 'JPY',
   step: 5,
   rowCount: 5,
   includeOne: true,
   backgroundId: null,
-  position: "center",
+  position: 'center',
 };
 
 // Returns the reactive state as a ref (VueUse `useLocalStorage`, auto-imported

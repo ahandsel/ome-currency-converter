@@ -2,7 +2,7 @@
 // Base currency select plus the destination chip grid.
 // Mutates the shared wallpaper state object passed down from the page.
 
-import { CURRENCIES, currencyMeta } from "#shared/utils/currencies";
+import { CURRENCIES, currencyMeta } from '#shared/utils/currencies';
 
 const props = defineProps({
   state: { type: Object, required: true },
@@ -14,7 +14,7 @@ const codes = ref(Object.keys(CURRENCIES).sort());
 
 onMounted(async () => {
   try {
-    const res = await fetch("https://api.frankfurter.dev/v1/currencies");
+    const res = await fetch('https://api.frankfurter.dev/v1/currencies');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const fetched = Object.keys(data).sort();
@@ -38,7 +38,9 @@ watch(
   () => props.state.base,
   (base) => {
     if (props.state.destinations.includes(base)) {
-      props.state.destinations = props.state.destinations.filter((c) => c !== base);
+      props.state.destinations = props.state.destinations.filter(
+        (c) => c !== base,
+      );
     }
   },
 );
@@ -56,7 +58,7 @@ function toggleDestination(code) {
 
 <template>
   <div class="field">
-    <label for="base">{{ $t("controls.homeCurrency") }}</label>
+    <label for="base">{{ $t('controls.homeCurrency') }}</label>
     <select id="base" v-model="state.base">
       <option v-for="code in codes" :key="code" :value="code">
         {{ currencyMeta(code).flag }} {{ code }} — {{ currencyMeta(code).name }}
@@ -65,20 +67,23 @@ function toggleDestination(code) {
   </div>
 
   <div class="field">
-    <span class="field-label">{{ $t("controls.destinations") }}</span>
-    <p class="hint">{{ $t("controls.destinationsHint") }}</p>
+    <span class="field-label">{{ $t('controls.destinations') }}</span>
+    <p class="hint">{{ $t('controls.destinationsHint') }}</p>
     <div class="chip-grid">
       <button
         v-for="code in codes"
         :key="code"
         type="button"
         class="chip"
-        :class="{ selected: state.destinations.includes(code) && code !== state.base }"
+        :class="{
+          selected: state.destinations.includes(code) && code !== state.base,
+        }"
         :aria-disabled="code === state.base"
         :aria-pressed="state.destinations.includes(code)"
         @click="toggleDestination(code)"
       >
-        <span class="flag">{{ currencyMeta(code).flag }}</span><span>{{ code }}</span>
+        <span class="flag">{{ currencyMeta(code).flag }}</span
+        ><span>{{ code }}</span>
       </button>
     </div>
   </div>

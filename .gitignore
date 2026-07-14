@@ -2,19 +2,17 @@
 node_modules/
 .pnpm-store/
 
-# VitePress build output & cache
-**/.vitepress/dist/
-**/.vitepress/cache/
-
-# Vite build output & cache
-dist/
+# Nuxt / Nitro builds and cache
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
 .vite/
 
-# Nuxt build output & cache
-.nuxt/
-.output/
-
 # Logs
+logs
 *.log
 markdown-lint-log.txt
 

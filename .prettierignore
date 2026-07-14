@@ -1,16 +1,14 @@
 # pnpm
 pnpm-lock.yaml
 
-# VitePress build output
-**/.vitepress/dist
-**/.vitepress/cache
-
-# Vite build output
+# Nuxt / Nitro builds and cache
+.output
+.data
+.nuxt
+.nitro
+.cache
 dist
-
-# Nuxt build output & cache
-.nuxt/
-.output/
+.vite/
 
 # Claude Code symlinked skills (linted via skills/ directly)
 .claude/

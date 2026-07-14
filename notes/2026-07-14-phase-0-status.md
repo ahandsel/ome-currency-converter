@@ -4,15 +4,17 @@ Status as of 2026-07-14.
 Phase 0 of [docs/technical-plan.md](../docs/technical-plan.md) is implemented and verified, and is waiting for maintainer approval at the phase-end checkpoint.
 Nothing has been committed yet.
 
+Product direction update (same day): multi-destination cards are out of scope. The target wallpaper is a two-column home/travel increment table with currency-wall selection. Phase 0 still ships the cards-style UI as the migration checkpoint; Phase 2 replaces it. See [product-spec.md](../docs/product-spec.md) and the prompt `prompts/two-currency-increment-table.prompt.md`.
+
 
 ## What was done
 
 * Scaffolded Nuxt 4.4.8 with `@nuxtjs/i18n@10.4.0` and `@vueuse/nuxt`; `nuxt.config.ts` wires i18n to the repo-root `localization/` folder and sets the route rules from the plan.
 * Ported the pure canvas renderer to `app/utils/wallpaper.js` and the currency metadata to `shared/utils/currencies.js`, byte-identical except the import line.
 * Added the cached rates proxy `server/api/rates/[base].get.js` (one-hour cache, stale-while-revalidate, 400 for unknown codes) and `app/composables/use-rates.js` with a session-sticky direct-to-Frankfurter fallback for static hosts.
-* Rebuilt the cards-mode UI as components: `app/pages/index.vue`, `control-panel.vue`, `currency-controls.vue`, and the client-only `wallpaper-preview.vue` with PNG download.
-* Added `app/composables/use-wallpaper-state.js` with the full 13-field state shape from the plan, persisted under the prototype `STORAGE_KEY` so saved setups carry over.
-* Externalized every UI string into `localization/en.json`; English is the only registered locale until Phase 4.
+* Rebuilt the then-current prototype UI (home select, destination chips, cards renderer) as components: `app/pages/index.vue`, `control-panel.vue`, `currency-controls.vue`, and the client-only `wallpaper-preview.vue` with PNG download. That cards layout is obsolete product direction; keep it only until Phase 2.
+* Added `app/composables/use-wallpaper-state.js` with the Phase 0 state shape (including cards-era fields), persisted under the prototype `STORAGE_KEY` so saved setups carry over.
+* Externalized every UI string into `localization/en.json`; English is the only registered locale until Phase 4. Phase 2 target keys (`currencies`, `step`, `rowCount`, `incompletePair`, and related) sit beside the Phase 0 keys until the UI switches.
 * Added Vitest: `vitest.config.mjs` plus 11 unit tests for `formatAmount`, `currencyMeta`, and the rates route with a mocked Frankfurter response; `pnpm test-unit` is wired into `pnpm test`.
 * Removed the legacy `index.html`, `vite.config.js`, and `src/`; switched `.github/workflows/deploy.yml` to `pnpm generate` and `.output/public`.
 * Updated the docs: root `README.md`, the stale `AGENTS.md` sections, `localization/README.md`, `public/README.md`, and new READMEs across `app/`, `server/`, and `shared/`.
@@ -24,11 +26,11 @@ Nothing has been committed yet.
 * Maintainer approval of the Phase 0 result, then the commit (drafted with the `ai-commit` skill).
 * Manual browser checks that could not run headlessly: PNG export produces a correct file, each iPhone size renders without clipping, a returning user's saved settings carry over, and the static export fetches rates through the client fallback.
 * Phase 1 - backgrounds module and photo rendering, starting with the curation proposal note and its approval checkpoint.
-* Phase 2 - increment table mode (`shared/utils/ladder.js`, mode toggle, and table controls), flipping the default mode to `table`.
+* Phase 2 - increment-table wallpaper and currency-wall selection: remove cards / multi-destination state and UI; add `shared/utils/ladder.js`, home/travel wall selection, step and row count controls, and `renderIncrementTable`. Do not keep a mode toggle or cards as a secondary mode.
 * Phase 3 - content positioning (center or left).
 * Phase 4 - Japanese localization (`localization/ja.json`, language switcher, and Intl-based currency names and number formats).
 * Phase 5 - polish and deployment preset selection.
-* Component tests from the testing notes (control panel by mode, background picker fallback) once those features exist in Phases 1 and 2.
+* Component tests from the testing notes (currency-wall selection, incomplete-pair download disable, background picker fallback) once those features exist in Phases 1 and 2.
 
 
 ## Issues that need maintainer review

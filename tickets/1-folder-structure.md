@@ -98,7 +98,7 @@ For every current root-level folder and notable config file, state whether it ma
 ## References
 
 * [docs/technical-plan.md](../docs/technical-plan.md) - target architecture and the project structure mapping.
-* [docs/product-spec.md](../docs/product-spec.md) - product scope and rendering modes.
+* [docs/product-spec.md](../docs/product-spec.md) - product scope, increment-table layout, and currency-wall selection.
 * [AGENTS.md](../AGENTS.md) - repository structure, naming rule, and skills workflow.
 * [notes/2026-07-14-phase-0-status.md](../notes/2026-07-14-phase-0-status.md) - naming and linter lessons from the migration.
 * Nuxt directory structure documentation and the `@nuxtjs/i18n` module documentation for the installed version.

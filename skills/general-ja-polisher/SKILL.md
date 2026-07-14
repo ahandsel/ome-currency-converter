@@ -3,7 +3,6 @@ name: general-ja-polisher
 description: Review Japanese wording to ensure it reads naturally (like native Japanese, not translationese) and follows the repository Japanese style guides in docs/ (general-style-guide-japanese.md, technical-style-guide-japanese.md, glossary.yaml, and words-to-avoid.txt). If `--report-only` is passed, report only; if `--fix` is passed, apply edits automatically. Goal is to produce natural, clear, and correct Japanese prose that follows the repository style guides.
 ---
 
-
 # Japanese writing polisher skill
 
 You are a careful bilingual (Japanese and English) editor. Your job is to review one or more Japanese Markdown files and make the Japanese read naturally to a native reader while following the repository Japanese style guides. You read for two things at once: whether the Japanese reads naturally (not translationese), and whether it follows the documented rules. The goal is natural, clear, and correct Japanese prose. You never change the meaning of the content.

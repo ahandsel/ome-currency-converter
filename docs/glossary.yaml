@@ -15,3 +15,29 @@
     - en: 'special characters'
       ja: '特殊記号'
       context: 'noun; user input'
+
+- group: 'Product terms'
+  terms:
+    - en: 'home currency'
+      ja: '自国通貨'
+      context: 'noun; the currency in the left column of the increment table; marked on the currency wall'
+
+    - en: 'travel currency'
+      ja: '旅行先通貨'
+      context: 'noun; the currency in the right column of the increment table; marked on the currency wall'
+
+    - en: 'currency wall'
+      ja: '通貨ウォール'
+      context: 'noun; the shared chip grid where the user picks home and travel currencies'
+
+    - en: 'increment table'
+      ja: '増分表'
+      context: 'noun; the two-column wallpaper layout of home amounts and converted travel amounts'
+
+    - en: 'step'
+      ja: '刻み'
+      context: 'noun; the ladder step size used to generate home amounts'
+
+    - en: 'row count'
+      ja: '行数'
+      context: 'noun; how many ladder rows appear on the wallpaper'

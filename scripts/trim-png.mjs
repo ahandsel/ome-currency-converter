@@ -95,7 +95,9 @@ function decodePng(buffer) {
 
   if (!ihdr) throw new Error('Missing IHDR chunk.');
   if (ihdr.bitDepth !== 8) {
-    throw new Error(`Unsupported bit depth ${ihdr.bitDepth} (only 8 is supported).`);
+    throw new Error(
+      `Unsupported bit depth ${ihdr.bitDepth} (only 8 is supported).`,
+    );
   }
   if (ihdr.interlace !== 0) {
     throw new Error('Interlaced PNGs are not supported.');
@@ -121,7 +123,8 @@ function decodePng(buffer) {
       const rawByte = raw[pos++];
       const a = x >= channels ? raster[rowStart + x - channels] : 0; // left
       const b = y > 0 ? raster[rowStart - stride + x] : 0; // up
-      const c = x >= channels && y > 0 ? raster[rowStart - stride + x - channels] : 0; // upper-left
+      const c =
+        x >= channels && y > 0 ? raster[rowStart - stride + x - channels] : 0; // upper-left
       let value;
       switch (filterType) {
         case 0:

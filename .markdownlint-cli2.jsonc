@@ -19,7 +19,15 @@
     "MD029": { "style": "ordered" },
     "MD032": false,
     "MD033": {
-      "allowed_elements": ["br", "pre", "script", "ul", "li", "ol", "RepoCards"],
+      "allowed_elements": [
+        "br",
+        "pre",
+        "script",
+        "ul",
+        "li",
+        "ol",
+        "RepoCards",
+      ],
     },
     "MD036": false,
     "search-replace": {
@@ -76,7 +84,6 @@
   // Covers both the canonical copy under skills/ and the auto-mirrored copy under .claude/skills/.
   "ignores": [
     // All figma-* skills are vendored from the official Figma plugin.
-    "**/skills/figma-*/**",
   ],
 
   // Optional CLI behavior

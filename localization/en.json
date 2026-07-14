@@ -1,18 +1,31 @@
 {
   "app": {
     "title": "Ome Currency Converter",
-    "tagline": "Make an iPhone wallpaper with live travel exchange rates.",
+    "tagline": "Make an iPhone wallpaper with a home-to-travel exchange table.",
     "metaTitle": "Ome Currency Converter - travel wallpaper",
-    "metaDescription": "Generate an iPhone wallpaper showing live currency exchange rates for your trip."
+    "metaDescription": "Generate an iPhone wallpaper showing a home-to-travel currency exchange table for your trip."
   },
   "controls": {
     "ariaLabel": "Wallpaper settings",
+    "currencies": "Currencies",
+    "currenciesHint": "Tap to set home, then travel. Tap again to clear. At most two currencies.",
+    "homeMarker": "Home",
+    "travelMarker": "Travel",
+    "step": "Step",
+    "stepHint": "Home amount increment for each ladder row.",
+    "rowCount": "Rows",
+    "rowCountHint": "How many amounts appear on the wallpaper (3 to 10).",
+    "includeOne": "Include 1",
+    "includeOneHint": "Add a one-unit home amount as the first row when needed.",
     "homeCurrency": "Home currency",
     "destinations": "Destinations",
     "destinationsHint": "Tap the currencies you want on your wallpaper.",
     "referenceAmount": "Reference amount",
     "referenceAmountHint": "Shows what this much home currency is worth.",
     "theme": "Theme",
+    "background": "Background",
+    "backgroundHint": "Pick a photo or keep a gradient theme.",
+    "backgroundNone": "None (gradient)",
     "device": "iPhone size",
     "title": "Title",
     "refresh": "Refresh rates"
@@ -21,11 +34,13 @@
     "fetching": "Fetching latest rates…",
     "updated": "Rates as of {date}.",
     "fetchError": "Could not fetch rates. Check your connection and try Refresh.",
-    "downloadError": "Could not generate the image."
+    "downloadError": "Could not generate the image.",
+    "incompletePair": "Select a home currency and a travel currency to preview the wallpaper."
   },
   "preview": {
     "ariaLabel": "Wallpaper preview",
     "download": "Download wallpaper",
+    "photoCredit": "Photo: {name}",
     "saveHint": "On iPhone: download, open in Photos, then set as wallpaper. Tip: tap and hold the downloaded image to save it directly."
   },
   "footer": {

@@ -2,7 +2,7 @@
 // The settings column: currency controls, reference amount, theme, device,
 // title, the refresh button, and the shared status line.
 
-import { THEMES, DEVICE_SIZES } from "~/utils/wallpaper";
+import { THEMES, DEVICE_SIZES } from '~/utils/wallpaper';
 
 const props = defineProps({
   state: { type: Object, required: true },
@@ -12,7 +12,7 @@ const props = defineProps({
   downloadError: { type: Boolean, default: false },
 });
 
-defineEmits(["refresh"]);
+defineEmits(['refresh']);
 
 const { t } = useI18n();
 
@@ -20,11 +20,16 @@ const { t } = useI18n();
 // while a request is in flight, then the most recent failure, then the
 // rate date.
 const status = computed(() => {
-  if (props.pending) return { text: t("status.fetching"), isError: false };
-  if (props.downloadError) return { text: t("status.downloadError"), isError: true };
-  if (props.error) return { text: t("status.fetchError"), isError: true };
-  if (props.rates) return { text: t("status.updated", { date: props.rates.date }), isError: false };
-  return { text: "", isError: false };
+  if (props.pending) return { text: t('status.fetching'), isError: false };
+  if (props.downloadError)
+    return { text: t('status.downloadError'), isError: true };
+  if (props.error) return { text: t('status.fetchError'), isError: true };
+  if (props.rates)
+    return {
+      text: t('status.updated', { date: props.rates.date }),
+      isError: false,
+    };
+  return { text: '', isError: false };
 });
 </script>
 
@@ -34,7 +39,7 @@ const status = computed(() => {
 
     <div class="field-row">
       <div class="field">
-        <label for="ref">{{ $t("controls.referenceAmount") }}</label>
+        <label for="ref">{{ $t('controls.referenceAmount') }}</label>
         <input
           id="ref"
           v-model="state.referenceAmount"
@@ -43,10 +48,10 @@ const status = computed(() => {
           step="1"
           inputmode="numeric"
         />
-        <p class="hint">{{ $t("controls.referenceAmountHint") }}</p>
+        <p class="hint">{{ $t('controls.referenceAmountHint') }}</p>
       </div>
       <div class="field">
-        <label for="theme">{{ $t("controls.theme") }}</label>
+        <label for="theme">{{ $t('controls.theme') }}</label>
         <select id="theme" v-model="state.theme">
           <option v-for="(themeOption, key) in THEMES" :key="key" :value="key">
             {{ themeOption.label }}
@@ -55,28 +60,39 @@ const status = computed(() => {
       </div>
     </div>
 
+    <BackgroundPicker :state="state" />
+
     <div class="field-row">
       <div class="field">
-        <label for="device">{{ $t("controls.device") }}</label>
+        <label for="device">{{ $t('controls.device') }}</label>
         <select id="device" v-model="state.device">
-          <option v-for="(deviceOption, key) in DEVICE_SIZES" :key="key" :value="key">
+          <option
+            v-for="(deviceOption, key) in DEVICE_SIZES"
+            :key="key"
+            :value="key"
+          >
             {{ deviceOption.label }}
           </option>
         </select>
       </div>
       <div class="field">
-        <label for="title">{{ $t("controls.title") }}</label>
+        <label for="title">{{ $t('controls.title') }}</label>
         <input id="title" v-model="state.title" type="text" maxlength="32" />
       </div>
     </div>
 
     <div class="actions">
       <button type="button" class="btn ghost" @click="$emit('refresh')">
-        ↻ {{ $t("controls.refresh") }}
+        ↻ {{ $t('controls.refresh') }}
       </button>
     </div>
 
-    <p class="status" :class="{ error: status.isError }" role="status" aria-live="polite">
+    <p
+      class="status"
+      :class="{ error: status.isError }"
+      role="status"
+      aria-live="polite"
+    >
       {{ status.text }}
     </p>
   </section>
