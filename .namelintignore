@@ -1,0 +1,3 @@
+# Nitro route params require the [base] bracket syntax, which fails the
+# repo kebab-case file name rule.
+server/api/rates/[base].get.js

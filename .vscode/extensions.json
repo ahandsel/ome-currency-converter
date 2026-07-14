@@ -1,0 +1,18 @@
+{
+  "recommendations": [
+    "alanwalk.markdown-navigation",
+    "anthropic.claude-code",
+    "bierner.github-markdown-preview",
+    "davidanson.vscode-markdownlint",
+    "esbenp.prettier-vscode",
+    "github.copilot-chat",
+    "github.vscode-github-actions",
+    "github.vscode-pull-request-github",
+    "jannisx11.batch-rename-extension",
+    "mosapride.zenkaku",
+    "streetsidesoftware.code-spell-checker",
+    "wayou.vscode-todo-highlight",
+    "wraith13.open-in-github-desktop",
+    "yzhang.markdown-all-in-one"
+  ]
+}

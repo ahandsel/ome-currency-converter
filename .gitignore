@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# VitePress build output & cache
+**/.vitepress/dist/
+**/.vitepress/cache/
+
+# Vite build output & cache
+dist/
+.vite/
+
+# Nuxt build output & cache
+.nuxt/
+.output/
+
+# Logs
+*.log
+markdown-lint-log.txt
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Private files
+private/
+private-**
+private.*
+
+# Temp files
+temp
+temp.*
+temp-*
+.temp
+*.temp
+**/temp.md
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.idea/
+*.suo
+*.sln
+*.sw?

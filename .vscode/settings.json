@@ -1,0 +1,41 @@
+{
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "editor.bracketPairColorization.enabled": true,
+  "editor.detectIndentation": false,
+  "editor.guides.bracketPairs": "active",
+  "editor.indentSize": "tabSize",
+  "editor.insertSpaces": true,
+  "editor.renderControlCharacters": true,
+  "editor.renderWhitespace": "boundary",
+  "editor.tabSize": 2,
+  "files.associations": { "wrangler.json": "jsonc" },
+  "git.autofetch": true,
+  "git.blame.statusBarItem.enabled": true,
+  "japanese-proofreading.textlint.かっこ類と隣接する文字の間のスペースの有無": false,
+  "japanese-proofreading.textlint.大かっこ［］": false,
+  "japanese-proofreading.textlint.算用数字と漢数字の使い分け": false,
+  "[markdown]": {
+    "editor.defaultFormatter": "yzhang.markdown-all-in-one",
+    "editor.wordWrap": "on"
+  },
+  "markdown.extension.italic.indicator": "*",
+  "markdown.extension.list.indentationSize": "inherit",
+  "markdown.extension.orderedList.autoRenumber": true,
+  "markdown.extension.preview.autoShowPreviewToSide": false,
+  "markdown.extension.toc.levels": "2..2",
+  "markdown.extension.toc.slugifyMode": "github",
+  "markdown.extension.toc.unorderedList.marker": "*",
+  "markdown.extension.toc.updateOnSave": true,
+  "markdown.updateLinksOnFileMove.enabled": "prompt",
+  "markdown.validate.ignoredLinks": ["**/*.mp4", "**/*.png", "**/*.svg"],
+  "markdown.validate.referenceLinks.enabled": "ignore",
+  "markdownlint.configFile": ".markdownlint-cli2.jsonc",
+  "markdownlint.run": "onSave",
+  "mdx.validate.validateMarkdownFileLinkFragments": "hint",
+  "cSpell.words": [
+    "Qiita"
+  ]
+}
