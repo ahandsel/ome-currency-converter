@@ -30,6 +30,10 @@ describe('BACKGROUNDS', () => {
         expect(entry[field], `${entry.id}.${field}`).toBeTruthy();
       }
       expect(['light', 'dark']).toContain(entry.suggestedText);
+      // Phase 5 scrim tinting expects a six-digit hex color string.
+      expect(entry.dominantColor, `${entry.id}.dominantColor`).toMatch(
+        /^#[0-9a-fA-F]{6}$/,
+      );
       expect(entry.fullUrl).toContain('images.unsplash.com');
       expect(entry.thumbUrl).toContain('images.unsplash.com');
       expect(entry.profileUrl).toContain('utm_source=ome');

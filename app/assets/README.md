@@ -5,4 +5,4 @@ Assets that the bundler processes, referenced from the app source. Unlike files 
 
 ## Contents
 
-* [css/main.css](css/main.css) - the global stylesheet, registered through the `css` option in [nuxt.config.ts](../../nuxt.config.ts).
+* [css/main.css](css/main.css) - the global stylesheet, registered through the `css` option in [nuxt.config.ts](../../nuxt.config.ts). Includes Phase 5 responsive breakpoints: one-column layout with preview first below 840px, and tighter phone-width rules below 480px.

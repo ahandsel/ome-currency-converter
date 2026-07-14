@@ -14,6 +14,8 @@ import {
 const props = defineProps({
   state: { type: Object, required: true },
   rates: { type: Object, default: null },
+  pending: { type: Boolean, default: false },
+  error: { type: Object, default: null },
 });
 
 const emit = defineEmits(['download-error']);
@@ -23,15 +25,47 @@ const intlLocale = computed(() => (locale.value === 'ja' ? 'ja-JP' : 'en-US'));
 
 const canvasEl = ref(null);
 const loadedBackgroundImage = ref(null);
+const backgroundLoadFailed = ref(false);
+
+const hasSelectionPair = computed(() => {
+  const { home, travel } = props.state;
+  return Boolean(home && travel && home !== travel);
+});
 
 const isPairComplete = computed(() => {
-  const { home, travel } = props.state;
-  if (!home || !travel || home === travel) return false;
+  if (!hasSelectionPair.value) return false;
   const latest = props.rates;
-  if (!latest || latest.base !== home) return false;
-  const rate = latest.rates?.[travel];
+  if (!latest || latest.base !== props.state.home) return false;
+  const rate = latest.rates?.[props.state.travel];
   return Number.isFinite(rate);
 });
+
+// Preview hint when the table cannot render. Priority: incomplete selection >
+// waiting for rates > rates unavailable (fetch failed or travel rate missing).
+const previewHintKey = computed(() => {
+  if (!hasSelectionPair.value) return 'status.incompletePair';
+  if (isPairComplete.value) return null;
+  if (props.pending) return 'status.waitingRates';
+  if (props.error) return 'status.ratesUnavailable';
+
+  const latest = props.rates;
+  if (latest && latest.base === props.state.home) {
+    // Home rates loaded but the travel code has no finite rate.
+    return 'status.ratesUnavailable';
+  }
+
+  // Pair selected; rates for this home are not present yet. Prefer waiting
+  // over "select currencies". When `error` is wired from the page, failures
+  // take the branch above instead.
+  return 'status.waitingRates';
+});
+
+const showBackgroundFallback = computed(
+  () =>
+    Boolean(props.state.backgroundId) &&
+    backgroundLoadFailed.value &&
+    !loadedBackgroundImage.value,
+);
 
 function backgroundRenderFields() {
   const id = props.state.backgroundId;
@@ -110,19 +144,23 @@ function draw() {
 async function loadBackgroundForId(id) {
   if (!id) {
     loadedBackgroundImage.value = null;
+    backgroundLoadFailed.value = false;
     return;
   }
 
   const requestedId = id;
   loadedBackgroundImage.value = null;
+  backgroundLoadFailed.value = false;
 
   try {
     const img = await loadBackgroundImage(requestedId);
     if (props.state.backgroundId !== requestedId) return;
     loadedBackgroundImage.value = img;
+    backgroundLoadFailed.value = false;
   } catch {
     if (props.state.backgroundId !== requestedId) return;
     loadedBackgroundImage.value = null;
+    backgroundLoadFailed.value = true;
   }
 }
 
@@ -174,8 +212,17 @@ function downloadWallpaper() {
       height="2796"
     ></canvas>
   </div>
-  <p v-if="!isPairComplete" class="hint" role="status">
-    {{ $t('status.incompletePair') }}
+  <AttributionNote :background-id="state.backgroundId" />
+  <p v-if="previewHintKey" class="hint" role="status" aria-live="polite">
+    {{ $t(previewHintKey) }}
+  </p>
+  <p
+    v-if="showBackgroundFallback"
+    class="hint"
+    role="status"
+    aria-live="polite"
+  >
+    {{ $t('status.backgroundFallback') }}
   </p>
   <button
     type="button"

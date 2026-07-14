@@ -45,6 +45,8 @@ useSeoMeta({
           <WallpaperPreview
             :state="state"
             :rates="rates"
+            :pending="pending"
+            :error="error"
             @download-error="downloadError = true"
           />
         </ClientOnly>

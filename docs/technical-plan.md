@@ -17,14 +17,15 @@ Target Nuxt 4 (v4.4.x is the current stable at the time of writing; use the late
 * Nitro server routes give the app a real backend: `/api/rates/[base]` proxies the Frankfurter API with built-in response caching, instead of an in-memory `Map` in the browser.
 * Auto-imports cover components, composables, and utils, so modules stay small without import boilerplate.
 * Hybrid rendering: the control panel shell is server-rendered for a fast first paint, while the canvas preview runs client-only where the DOM exists.
-* Deployment stays flexible: Nitro presets target Node, Cloudflare, Vercel, and Netlify, and `nuxt generate` can still produce a static export for GitHub Pages.
+* Deployment target (Phase 5): GitHub Pages via `pnpm generate` and the Nitro `github-pages` preset (static export to `.output/public`). Local `pnpm build` / `pnpm dev` can still use a Nitro server for the rates route; production Pages does not.
 * The `@vueuse/nuxt` module provides `useLocalStorage` for settings persistence, replacing the manual `loadState` and `saveState` helpers.
 * The `@nuxtjs/i18n` module (built on Vue I18n) gives the app an English and Japanese interface with browser-language detection and a persisted language choice.
 
 
-## Current architecture (after Phase 4)
+## Current architecture (after Phase 4; Phase 5 deployment chosen)
 
 Phases 0 to 4 are complete. The app lives in the Nuxt layout below and paints a single home/travel increment-table wallpaper with center or left positioning. The interface is available in English and Japanese.
+Phase 5 polish work is still open, but the deployment path is settled: static GitHub Pages with `pnpm generate` and Nitro `preset: "github-pages"` (see `nuxt.config.ts` and `.github/workflows/deploy.yml`).
 
 * `app/pages/index.vue`: owns wallpaper state and rates; composes the control panel and preview.
 * `app/components/control-panel.vue`, `currency-controls.vue`, `background-picker.vue`, `position-toggle.vue`, `language-switcher.vue`, `wallpaper-preview.vue`: settings column, currency wall plus ladder inputs, photo picker, center/left position, language switcher, and client-only canvas preview with PNG download.
@@ -94,8 +95,10 @@ Application modules stay plain JavaScript to keep diffs small. Nuxt supports thi
 
 * The app is a single page. `app/pages/index.vue` is server-rendered so the control panel appears immediately.
 * The canvas preview lives in `app/components/wallpaper-preview.vue` wrapped in `<ClientOnly>`, because canvas drawing, `localStorage`, and PNG export require the browser.
-* `routeRules` in `nuxt.config.ts` prerenders `/` and applies stale-while-revalidate caching to `/api/rates/**`.
-* Static export escape hatch: `use-rates.js` falls back to calling Frankfurter directly from the browser when the rates route fails (see the data layer section for the mechanism), so `nuxt generate` output still works on a static host. The API stays keyless and CORS-enabled, so this fallback costs nothing.
+* `routeRules` in `nuxt.config.ts` prerenders `/` and applies stale-while-revalidate caching to `/api/rates/**` when a Nitro server is present (for example, `pnpm dev` or `pnpm build`).
+* Production deploy is the Nitro `github-pages` static preset: `pnpm generate` writes `.output/public`, and `.github/workflows/deploy.yml` publishes that folder to GitHub Pages.
+* Project Pages serves the site under `/ome-currency-converter/`, so `app.baseURL` is set to `/ome-currency-converter/` in `nuxt.config.ts`.
+* Static export escape hatch: `use-rates.js` falls back to calling Frankfurter directly from the browser when the rates route fails (see the data layer section for the mechanism), so the GitHub Pages export still loads rates. The API stays keyless and CORS-enabled, so this fallback costs nothing.
 
 
 ## New state shape
@@ -259,12 +262,18 @@ Do not add `mode-toggle.vue`. There is only one wallpaper layout.
 
 ### `nuxt.config.ts`
 
-Minimal configuration (already in place from Phase 0):
+Configuration includes i18n, the Phase 5 GitHub Pages static preset, and the project Pages `baseURL`:
 
 ```ts
 export default defineNuxtConfig({
   modules: ['@nuxtjs/i18n', '@vueuse/nuxt'],
   css: ['~/assets/css/main.css'],
+  app: {
+    baseURL: '/ome-currency-converter/',
+  },
+  nitro: {
+    preset: 'github-pages',
+  },
   i18n: {
     strategy: 'no_prefix',
     defaultLocale: 'en',
@@ -281,7 +290,7 @@ export default defineNuxtConfig({
 });
 ```
 
-The i18n `langDir` option points the module at the `localization/` folder. Treat the snippet as illustrative rather than exact: follow the module documentation for the installed version.
+The i18n `langDir` option points the module at the `localization/` folder. Treat the snippet as illustrative rather than exact: follow the module documentation and the checked-in `nuxt.config.ts` for the installed version.
 
 
 ## Tooling and commands
@@ -306,7 +315,7 @@ The i18n `langDir` option points the module at the `localization/` folder. Treat
 3. Phase 2, increment-table wallpaper (product vision): remove multi-destination cards from state, UI, and renderer. Add the currency-wall home/travel selection model, step and row count controls, `shared/utils/ladder.js`, and `renderIncrementTable`. Incomplete pairs disable download and show an empty state. This phase ships the only supported wallpaper layout.
 4. Phase 3, positioning: add the center or left control and update the renderer to anchor and align the content block, weighting the scrim accordingly.
 5. Phase 4, Japanese localization: translate `localization/en.json` into `localization/ja.json` following [glossary.yaml](./glossary.yaml) and the Japanese general style guide, add the language switcher, localize currency names and number formats through the `Intl` APIs, and verify the wallpaper renders correctly in both languages.
-6. Phase 5, polish and deployment: attribution UI, responsive control layout, empty and error states, a legibility pass across all curated photos, and picking the Nitro deployment preset (or `nuxt generate` for a static host).
+6. Phase 5, polish and deployment (in progress): attribution UI, responsive control layout, empty and error states, and a legibility pass across all curated photos. Deployment is chosen: GitHub Pages with `pnpm generate` and Nitro `preset: "github-pages"` (not a Cloudflare, Vercel, or Netlify server preset).
 
 
 ## Testing notes
@@ -320,4 +329,4 @@ The i18n `langDir` option points the module at the `localization/` folder. Treat
   * Verify the app still loads and renders if the rate API or a background image fails.
   * Verify incomplete home/travel selection never invents a partner currency on the canvas.
 * Verify the interface and the generated wallpaper render correctly in both English and Japanese, including longer Japanese labels fitting the control layout and the canvas.
-* Verify the `nuxt generate` static export still fetches rates via the client fallback.
+* Verify the `pnpm generate` GitHub Pages export (`.output/public`) still fetches rates via the client fallback, including when opened under the `/ome-currency-converter/` project Pages path.

@@ -34,10 +34,13 @@
   },
   "status": {
     "fetching": "Fetching latest rates…",
+    "waitingRates": "Waiting for exchange rates…",
     "updated": "Rates as of {date}.",
     "fetchError": "Could not fetch rates. Check your connection and try Refresh.",
+    "ratesUnavailable": "Rates are unavailable for this currency pair. Try Refresh.",
     "downloadError": "Could not generate the image.",
-    "incompletePair": "Select a home currency and a travel currency to preview the wallpaper."
+    "incompletePair": "Select a home currency and a travel currency to preview the wallpaper.",
+    "backgroundFallback": "Photo could not load. Showing the gradient theme instead."
   },
   "preview": {
     "ariaLabel": "Wallpaper preview",

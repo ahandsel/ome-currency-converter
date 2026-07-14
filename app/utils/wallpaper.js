@@ -105,38 +105,90 @@ function drawCoverImage(ctx, img, w, h) {
 // Left-position panel width as a fraction of canvas width (roughly 55 to 60%).
 const LEFT_PANEL_WIDTH_FRACTION = 0.58;
 
+// Photos tagged suggestedText "dark" are bright; boost scrim/panel so light
+// table text still reads. We keep white text + dark scrim universally rather
+// than flipping to dark-on-light (which fights the dark-scrim strategy).
+const SCRIM_TINT_STRENGTH = 0.2;
+
 function normalizePosition(position) {
   return position === 'left' ? 'left' : 'center';
 }
 
+function parseHexColor(hex) {
+  if (typeof hex !== 'string') return null;
+  const m = /^#?([0-9a-fA-F]{6})$/.exec(hex.trim());
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+// Mostly black, lightly pulled toward dominantColor for cohesion.
+function scrimRgba(alpha, tintRgb) {
+  if (!tintRgb) return `rgba(0,0,0,${alpha})`;
+  const r = Math.round(tintRgb.r * SCRIM_TINT_STRENGTH);
+  const g = Math.round(tintRgb.g * SCRIM_TINT_STRENGTH);
+  const b = Math.round(tintRgb.b * SCRIM_TINT_STRENGTH);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 // Semi-opaque scrim for photo legibility. Center uses a vertical content-band
 // gradient; left adds a horizontal overlay weighted toward the content side.
-function drawScrim(ctx, w, h, position) {
+// options: { suggestedText?, dominantColor? }
+function drawScrim(ctx, w, h, position, options = {}) {
+  const strong = options.suggestedText === 'dark';
+  const tintRgb = parseHexColor(options.dominantColor);
+  const stop = (a) => scrimRgba(a, tintRgb);
+
+  // Vertical band peaks around the increment table (lower mid). Stronger alphas
+  // for light photos so white text stays readable over sand, snow, marble, etc.
   const vertical = ctx.createLinearGradient(0, 0, 0, h);
   if (position === 'left') {
-    vertical.addColorStop(0, 'rgba(0,0,0,0.20)');
-    vertical.addColorStop(0.3, 'rgba(0,0,0,0.35)');
-    vertical.addColorStop(0.55, 'rgba(0,0,0,0.50)');
-    vertical.addColorStop(0.85, 'rgba(0,0,0,0.40)');
-    vertical.addColorStop(1, 'rgba(0,0,0,0.28)');
+    if (strong) {
+      vertical.addColorStop(0, stop(0.28));
+      vertical.addColorStop(0.3, stop(0.48));
+      vertical.addColorStop(0.55, stop(0.68));
+      vertical.addColorStop(0.85, stop(0.55));
+      vertical.addColorStop(1, stop(0.38));
+    } else {
+      vertical.addColorStop(0, stop(0.22));
+      vertical.addColorStop(0.3, stop(0.4));
+      vertical.addColorStop(0.55, stop(0.58));
+      vertical.addColorStop(0.85, stop(0.48));
+      vertical.addColorStop(1, stop(0.32));
+    }
+  } else if (strong) {
+    vertical.addColorStop(0, stop(0.32));
+    vertical.addColorStop(0.3, stop(0.52));
+    vertical.addColorStop(0.55, stop(0.72));
+    vertical.addColorStop(0.85, stop(0.62));
+    vertical.addColorStop(1, stop(0.42));
   } else {
-    vertical.addColorStop(0, 'rgba(0,0,0,0.25)');
-    vertical.addColorStop(0.3, 'rgba(0,0,0,0.40)');
-    vertical.addColorStop(0.55, 'rgba(0,0,0,0.55)');
-    vertical.addColorStop(0.85, 'rgba(0,0,0,0.50)');
-    vertical.addColorStop(1, 'rgba(0,0,0,0.35)');
+    vertical.addColorStop(0, stop(0.28));
+    vertical.addColorStop(0.3, stop(0.45));
+    vertical.addColorStop(0.55, stop(0.62));
+    vertical.addColorStop(0.85, stop(0.55));
+    vertical.addColorStop(1, stop(0.38));
   }
   ctx.fillStyle = vertical;
   ctx.fillRect(0, 0, w, h);
 
   if (position !== 'left') return;
 
+  // Content-side darker; right side clears for home-screen icons.
   const horizontal = ctx.createLinearGradient(0, 0, w, 0);
-  horizontal.addColorStop(0, 'rgba(0,0,0,0.45)');
-  horizontal.addColorStop(0.35, 'rgba(0,0,0,0.30)');
-  horizontal.addColorStop(LEFT_PANEL_WIDTH_FRACTION, 'rgba(0,0,0,0.12)');
-  horizontal.addColorStop(0.75, 'rgba(0,0,0,0.04)');
-  horizontal.addColorStop(1, 'rgba(0,0,0,0)');
+  if (strong) {
+    horizontal.addColorStop(0, stop(0.55));
+    horizontal.addColorStop(0.35, stop(0.38));
+    horizontal.addColorStop(LEFT_PANEL_WIDTH_FRACTION, stop(0.16));
+    horizontal.addColorStop(0.75, stop(0.05));
+    horizontal.addColorStop(1, stop(0));
+  } else {
+    horizontal.addColorStop(0, stop(0.48));
+    horizontal.addColorStop(0.35, stop(0.32));
+    horizontal.addColorStop(LEFT_PANEL_WIDTH_FRACTION, stop(0.12));
+    horizontal.addColorStop(0.75, stop(0.04));
+    horizontal.addColorStop(1, stop(0));
+  }
   ctx.fillStyle = horizontal;
   ctx.fillRect(0, 0, w, h);
 }
@@ -338,7 +390,10 @@ export function renderWallpaper(canvas, data, size) {
       ctx.fillRect(0, 0, w, h);
     }
     drawCoverImage(ctx, data.background, w, h);
-    drawScrim(ctx, w, h, position);
+    drawScrim(ctx, w, h, position, {
+      suggestedText: data.suggestedText,
+      dominantColor: data.dominantColor,
+    });
   } else {
     drawGradientBackground(ctx, theme, w, h);
   }
@@ -361,9 +416,14 @@ export function renderWallpaper(canvas, data, size) {
   let zebraBg;
   let headerBg;
   if (hasPhoto) {
+    // Always light text over a dark panel. Bright photos (suggestedText
+    // "dark") get a more opaque panel instead of dark-on-light table colors.
+    const strongLegibility = data.suggestedText === 'dark';
     fg = '#ffffff';
-    muted = 'rgba(255,255,255,0.62)';
-    panelBg = 'rgba(0,0,0,0.58)';
+    muted = strongLegibility
+      ? 'rgba(255,255,255,0.70)'
+      : 'rgba(255,255,255,0.62)';
+    panelBg = strongLegibility ? 'rgba(0,0,0,0.78)' : 'rgba(0,0,0,0.64)';
     panelLine = 'rgba(255,255,255,0.14)';
     zebraBg = 'rgba(255,255,255,0.05)';
     headerBg = 'rgba(255,255,255,0.08)';
