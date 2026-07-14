@@ -24,7 +24,8 @@
   "author": "ahandsel",
   "type": "module",
   "scripts": {
-    "ai": "claude",
+    "ai-claude": "claude",
+    "ai-cursor": "agent",
     "build": "nuxt build",
     "check-license": "license-manager analyze --config license-manager.config.cjs",
     "cleanup": "zsh ./scripts/cleanup-temp-files.sh",
